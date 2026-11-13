@@ -1,0 +1,11 @@
+# Company data never goes in this public repository.
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.pdf
+*.msg
+*.eml
+/data/
+# Build output (the EXE is published as a release asset, not committed)
+/dist/

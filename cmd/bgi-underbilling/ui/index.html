@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+
+<title>Ajax Building Company: Adjusted Underbillings</title>
+<style nonce="__CSP_NONCE__">
+:root {
+  --ink: #101b33;
+  --navy: #1b2a5e;
+  --navy-deep: #131f47;
+  --paper: #f3f5f9;
+  --card: #ffffff;
+  --line: #dde3ec;
+  --line-soft: #ebeff5;
+  --muted: #5a6478;
+  --faint: #8590a3;
+  --hivis: #f2b705;
+  --tint: #eef3ff;
+  --up: #b42318;
+  --up-bg: #fdecea;
+  --down: #067647;
+  --down-bg: #e6f6ee;
+  --warn-ink: #7a4b00;
+  --warn-bg: #fff4d6;
+  --warn-line: #f0d48a;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s7: #6250d6; --s-none: #9aa3b2;
+  --display: Bahnschrift, "DIN Alternate", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --body: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --radius: 10px;
+}
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--paper); line-height: 1.45; -webkit-font-smoothing: antialiased; }
+button, select, input { font: inherit; color: inherit; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+:focus-visible { outline: 3px solid var(--hivis); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- top bar ---------- */
+.bar { background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 20; }
+.bar-in { max-width: 1480px; margin: 0 auto; padding: 0 28px; display: flex; align-items: stretch; gap: 28px; min-height: 58px; }
+.brand { display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+.brand b { font-family: var(--display); font-weight: 700; font-size: 1.12rem; letter-spacing: .04em; }
+.brand span { font-size: .8rem; color: #c3cdee; }
+.tabs { display: flex; align-items: stretch; gap: 4px; margin-left: 12px; }
+.tab { background: none; border: 0; color: #c9d2f0; padding: 0 16px; cursor: pointer; font-weight: 600; border-bottom: 4px solid transparent; border-top: 4px solid transparent; }
+.tab:hover { color: #fff; }
+.tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--hivis); }
+.bar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.btn { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-weight: 600; }
+.btn:hover { border-color: var(--navy); }
+.bar .btn { background: transparent; color: #fff; border-color: #56659c; }
+.bar .btn:hover { border-color: #fff; }
+.btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-primary:hover { background: var(--navy-deep); }
+
+main { max-width: 1480px; margin: 0 auto; padding: 24px 28px 64px; }
+.source-line { font-size: .86rem; color: var(--muted); margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+.source-line b { color: var(--ink); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+.pill-warn { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line); }
+.pill-ok { background: var(--down-bg); color: var(--down); }
+.pill-bad { background: var(--up-bg); color: var(--up); }
+.pill-src { background: var(--tint); color: var(--navy); }
+.linkish { background: none; border: 0; padding: 0; color: var(--navy); text-decoration: underline; cursor: pointer; font-weight: 600; }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(340px, 1.25fr) minmax(320px, 1fr) minmax(320px, 1.1fr); gap: 18px; margin-bottom: 22px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; }
+.panel h2 { font-family: var(--display); font-size: 1.02rem; font-weight: 600; margin: 0 0 12px; letter-spacing: .01em; }
+.headline { background: var(--navy); color: #fff; border-color: var(--navy); display: flex; flex-direction: column; }
+.headline .asof { color: #c3cdee; font-size: .92rem; }
+.headline .big { font-family: var(--display); font-weight: 700; font-size: clamp(2.6rem, 4.2vw, 3.7rem); line-height: 1.05; margin: 6px 0 2px; letter-spacing: -.01em; }
+.headline .what { font-size: 1.05rem; }
+.headline .delta { margin-top: 10px; font-size: 1rem; color: #e8ecfa; }
+.headline .delta b { color: #fff; }
+.trend { margin-top: auto; padding-top: 18px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; align-items: end; }
+.trend .col { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.trend .val { font-size: .86rem; color: #dfe5f7; font-variant-numeric: tabular-nums; }
+.trend .barwrap { height: 92px; display: flex; align-items: flex-end; }
+.trend .b { width: 100%; background: #4a5b99; border-radius: 4px 4px 0 0; min-height: 3px; }
+.trend .col.now .b { background: var(--hivis); }
+.trend .col.now .val { color: #fff; font-weight: 700; }
+.trend .lab { font-size: .8rem; color: #c3cdee; border-top: 1px solid #44548f; padding-top: 4px; }
+
+.donut-wrap { display: flex; gap: 18px; align-items: center; }
+.donut-wrap svg { flex: 0 0 auto; }
+.hero .donut-wrap { flex-direction: column; align-items: stretch; gap: 8px; }
+.hero .donut-wrap svg { align-self: center; }
+.legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 0; }
+.legend li { display: grid; grid-template-columns: 14px 1fr auto; gap: 4px 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line-soft); }
+.legend li:last-child { border-bottom: 0; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; }
+.legend .nm { font-weight: 600; }
+.legend .nm small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
+.legend .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.legend .v small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
+.legend button.rowbtn { all: unset; display: contents; cursor: pointer; }
+
+.movers { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.movers h3 { margin: 0 0 6px; font-size: .86rem; font-weight: 600; color: var(--muted); }
+.movers ol { list-style: none; margin: 0; padding: 0; }
+.movers li button { all: unset; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; padding: 6px 4px; border-bottom: 1px solid var(--line-soft); box-sizing: border-box; }
+.movers li button:hover { background: var(--tint); }
+.movers .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
+.movers .d { font-variant-numeric: tabular-nums; font-weight: 600; font-size: .9rem; }
+.up { color: var(--up); } .down { color: var(--down); }
+
+/* ---------- filters ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 12px; }
+.filters input[type=search], .filters select, .picker select { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: #fff; min-width: 240px; }
+.filter-note { background: var(--tint); border: 1px solid #cfdcff; border-radius: 8px; padding: 9px 14px; margin: 0 0 12px; }
+
+/* ---------- schedule table ---------- */
+.section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 18px; overflow: hidden; }
+.section-head { display: flex; align-items: baseline; gap: 14px; padding: 16px 20px 12px; border-bottom: 1px solid var(--line); }
+.section-head h2 { font-family: var(--display); font-size: 1.25rem; font-weight: 600; margin: 0; }
+.section-head .count { color: var(--muted); }
+.section-head .blurb { color: var(--muted); font-size: .88rem; flex: 1; }
+.section-head .sub { font-family: var(--display); font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+table.sched { width: 100%; border-collapse: collapse; font-size: .92rem; }
+table.sched th { text-align: left; font-weight: 600; color: var(--muted); font-size: .8rem; padding: 9px 12px; border-bottom: 1px solid var(--line); background: #fafbfd; white-space: nowrap; vertical-align: bottom; }
+table.sched th.r, table.sched td.r { text-align: right; }
+table.sched td { padding: 10px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }
+table.sched tr.line { cursor: pointer; }
+table.sched tr.line:hover td { background: #f6f8fd; }
+table.sched tr.line:hover td.now { background: #e3ebff; }
+table.sched td.job b { display: block; font-weight: 600; }
+table.sched td.job small { color: var(--faint); font-variant-numeric: tabular-nums; }
+table.sched th.now, table.sched td.now { background: var(--tint); }
+table.sched td.now { font-weight: 700; color: var(--navy); }
+table.sched td.prior { color: var(--muted); }
+table.sched tr.subtotal td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; background: #fafbfd; }
+table.sched tr.subtotal td.now { background: var(--tint); }
+.chg { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.chg.flat { color: var(--faint); font-weight: 400; }
+.tag { font-size: .74rem; border-radius: 4px; padding: 1px 6px; font-weight: 600; }
+.tag-new { background: var(--up-bg); color: var(--up); }
+.tag-clear { background: var(--down-bg); color: var(--down); }
+.pct { display: grid; grid-template-columns: 54px 44px; gap: 8px; align-items: center; justify-content: end; }
+.pct .track { display: block; height: 6px; background: var(--line-soft); border-radius: 3px; overflow: hidden; }
+.pct .fill { display: block; height: 100%; background: var(--navy); border-radius: 3px; }
+.see { color: var(--navy); font-weight: 600; white-space: nowrap; font-size: .86rem; }
+.comment { color: var(--muted); font-size: .86rem; max-width: 180px; }
+.grand { background: var(--navy); color: #fff; border-radius: var(--radius); padding: 16px 22px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 34px; }
+.grand .t { font-family: var(--display); font-size: 1.2rem; font-weight: 600; margin-right: auto; }
+.grand .p { text-align: right; }
+.grand .p small { display: block; color: #c3cdee; font-size: .8rem; }
+.grand .p b { font-family: var(--display); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.grand .p.now b { color: var(--hivis); font-size: 1.6rem; }
+
+/* ---------- calc tab ---------- */
+.picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.picker select { min-width: 380px; max-width: 100%; }
+.jobhead { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-end; margin-bottom: 16px; }
+.jobhead h1 { font-family: var(--display); font-size: 1.9rem; line-height: 1.15; margin: 0; font-weight: 700; }
+.jobhead .code { color: var(--muted); font-variant-numeric: tabular-nums; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 6px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .9rem; }
+.facts b { color: var(--ink); font-weight: 600; }
+.calc-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.calc-grid .wide { grid-column: 1 / -1; }
+.step { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+.step h2 { margin: 0; }
+.step .src { margin-left: auto; }
+.eq { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; background: #fcfdff; }
+.eq-title { font-weight: 600; margin-bottom: 8px; }
+.eq-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; }
+.term { display: flex; flex-direction: column; min-width: 0; }
+.term .l { font-size: .78rem; color: var(--muted); }
+.term .v { font-family: var(--display); font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.term .c { font-size: .7rem; color: var(--faint); font-family: Consolas, "Cascadia Mono", monospace; }
+.term.result .v { color: var(--navy); font-weight: 700; }
+.op { font-family: var(--display); font-size: 1.4rem; color: var(--faint); padding-bottom: 14px; }
+.eq-note { margin-top: 8px; font-size: .88rem; color: var(--muted); }
+.eq-note .off { color: var(--warn-ink); font-weight: 600; }
+.callout { border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: .93rem; }
+.callout-warn { background: var(--warn-bg); border: 1px solid var(--warn-line); color: #4d3200; }
+.callout-ok { background: var(--down-bg); border: 1px solid #b7e4cd; color: #064e33; }
+.callout b { display: block; margin-bottom: 4px; }
+.callout ul { margin: 6px 0 0; padding-left: 18px; }
+.plain { font-size: 1.02rem; margin: 0 0 12px; }
+.plain li { margin-bottom: 4px; }
+.walk { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; margin: 0 0 14px; }
+.walk .cell { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.walk .cell small { color: var(--muted); display: block; font-size: .8rem; }
+.walk .cell b { font-family: var(--display); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.walk .cell.now { background: var(--tint); border-color: #cfdcff; }
+.walk .cell.now b { color: var(--navy); font-size: 1.6rem; }
+table.mini { width: 100%; border-collapse: collapse; font-size: .9rem; }
+table.mini th { text-align: left; color: var(--muted); font-weight: 600; font-size: .8rem; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.mini td { padding: 8px; border-bottom: 1px solid var(--line-soft); }
+table.mini th.r, table.mini td.r { text-align: right; }
+table.mini tr.total td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; }
+table.mini tr.asked td:first-child { font-weight: 600; }
+table.mini tr.clickable { cursor: pointer; }
+table.mini tr.clickable:hover td { background: #f6f8fd; }
+.sw-i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+.none { color: var(--faint); font-style: italic; font-size: .84rem; }
+details.subs summary { cursor: pointer; font-weight: 600; color: var(--navy); padding: 4px 0; }
+details.subs[open] summary { margin-bottom: 8px; }
+
+/* ---------- data check ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 18px; }
+.cards .panel p { margin: 0 0 6px; }
+.status { font-weight: 700; white-space: nowrap; }
+.status.pass { color: var(--down); } .status.fail { color: var(--up); }
+code.f { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; color: var(--muted); }
+
+/* ---------- empty / drop ---------- */
+.drop { border: 2px dashed #9fb0d8; border-radius: 16px; background: #fff; padding: 56px 28px; text-align: center; max-width: 780px; margin: 48px auto; }
+.drop h1 { font-family: var(--display); font-size: 2rem; margin: 0 0 8px; }
+.drop p { color: var(--muted); margin: 0 auto 18px; max-width: 560px; }
+.drop .need { display: inline-grid; text-align: left; gap: 6px; margin: 0 0 22px; padding: 0; list-style: none; }
+.drop .need li::before { content: "○  "; color: var(--faint); }
+.drop .need li.have::before { content: "✓  "; color: var(--down); font-weight: 700; }
+body.dragging .drop, body.dragging main { outline: 4px solid var(--hivis); outline-offset: -4px; }
+.toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 10px; max-width: 720px; z-index: 50; box-shadow: 0 8px 28px rgba(16, 27, 51, .28); }
+.toast.err { background: var(--up); }
+footer.foot { max-width: 1480px; margin: 0 auto; padding: 0 28px 28px; color: var(--faint); font-size: .8rem; }
+
+@media (max-width: 1180px) { .hero { grid-template-columns: 1fr 1fr; } .hero .headline { grid-column: 1 / -1; } .calc-grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; } .bar-in { flex-wrap: wrap; gap: 6px 14px; } .tabs { margin-left: 0; order: 3; width: 100%; } .movers { grid-template-columns: 1fr; } .donut-wrap { flex-direction: column; align-items: stretch; } main { padding: 16px; } }
+@media (prefers-reduced-motion: no-preference) { .trend .b, .pct .fill { transition: height .35s ease, width .35s ease; } }
+
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  html { font-size: 11px; }
+  body { background: #fff; }
+  .bar { position: static; }
+  .tabs, .bar-actions, .filters, .picker, .see, .toast, th.seecol, td.seecol { display: none !important; }
+  .bar, .headline, .grand, .trend .b, .legend .sw, .pct .fill, table.sched th.now, table.sched td.now, .callout, .pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  main { padding: 10px 0; max-width: none; }
+  .section, .panel, .eq { break-inside: avoid; }
+  .section { overflow: visible; }
+  table.sched tr { break-inside: avoid; }
+  details.subs > *:not(summary) { display: block; }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="file" accept=".xlsx,.csv" multiple hidden>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<noscript>This report needs JavaScript. Open it in Microsoft Edge or Google Chrome.</noscript>
+<script nonce="__CSP_NONCE__">
+globalThis.BGI = globalThis.BGI || {}; globalThis.BGI.version = "0.1.0";
+/*
+ * Minimal, dependency-free .xlsx reader.
+ *
+ * An .xlsx file is a ZIP of XML parts. This reads only what the report needs:
+ * the shared-string table and the cell values of one worksheet. It never
+ * evaluates formulas, macros or external links, and it never touches the
+ * network. Works in any modern browser and in Node 18+ (for the tests).
+ */
+(function (BGI) {
+  'use strict';
+
+  var MAX_FILE_BYTES = 60 * 1024 * 1024;      // refuse inputs larger than 60 MB
+  var MAX_INFLATED_BYTES = 300 * 1024 * 1024; // zip-bomb guard across all parts read
+  var MAX_ROWS = 200000;
+
+  function XlsxError(message) {
+    var e = new Error(message);
+    e.name = 'XlsxError';
+    return e;
+  }
+
+  // ---------- ZIP ----------
+
+  function readZipDirectory(bytes) {
+    var view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    var eocd = -1;
+    var min = Math.max(0, bytes.length - 65557);
+    for (var i = bytes.length - 22; i >= min; i--) {
+      if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw XlsxError('This is not an Excel .xlsx file (no ZIP directory found).');
+    var count = view.getUint16(eocd + 10, true);
+    var offset = view.getUint32(eocd + 16, true);
+    var decoder = new TextDecoder('utf-8');
+    var entries = {};
+    for (var n = 0; n < count; n++) {
+      if (offset + 46 > bytes.length || view.getUint32(offset, true) !== 0x02014b50) {
+        throw XlsxError('The Excel file is damaged (bad ZIP directory).');
+      }
+      var method = view.getUint16(offset + 10, true);
+      var compressedSize = view.getUint32(offset + 20, true);
+      var size = view.getUint32(offset + 24, true);
+      var nameLen = view.getUint16(offset + 28, true);
+      var extraLen = view.getUint16(offset + 30, true);
+      var commentLen = view.getUint16(offset + 32, true);
+      var localOffset = view.getUint32(offset + 42, true);
+      var name = decoder.decode(bytes.subarray(offset + 46, offset + 46 + nameLen));
+      entries[name] = { name: name, method: method, compressedSize: compressedSize, size: size, localOffset: localOffset };
+      offset += 46 + nameLen + extraLen + commentLen;
+    }
+    return { bytes: bytes, view: view, entries: entries, inflated: 0 };
+  }
+
+  async function inflateRaw(data) {
+    var ds = new DecompressionStream('deflate-raw');
+    var writer = ds.writable.getWriter();
+    writer.write(data).catch(function () {});
+    writer.close().catch(function () {});
+    var reader = ds.readable.getReader();
+    var chunks = [];
+    var total = 0;
+    for (;;) {
+      var r = await reader.read();
+      if (r.done) break;
+      total += r.value.length;
+      if (total > MAX_INFLATED_BYTES) throw XlsxError('The Excel file is too large to read safely.');
+      chunks.push(r.value);
+    }
+    var out = new Uint8Array(total);
+    var pos = 0;
+    for (var i = 0; i < chunks.length; i++) { out.set(chunks[i], pos); pos += chunks[i].length; }
+    return out;
+  }
+
+  async function readEntry(zip, name) {
+    var e = zip.entries[name];
+    if (!e) return null;
+    var v = zip.view;
+    if (v.getUint32(e.localOffset, true) !== 0x04034b50) throw XlsxError('The Excel file is damaged (bad ZIP entry).');
+    var nameLen = v.getUint16(e.localOffset + 26, true);
+    var extraLen = v.getUint16(e.localOffset + 28, true);
+    var start = e.localOffset + 30 + nameLen + extraLen;
+    var data = zip.bytes.subarray(start, start + e.compressedSize);
+    var out;
+    if (e.method === 0) out = data;
+    else if (e.method === 8) out = await inflateRaw(data);
+    else throw XlsxError('The Excel file uses a compression method this reader does not support.');
+    zip.inflated += out.length;
+    if (zip.inflated > MAX_INFLATED_BYTES) throw XlsxError('The Excel file is too large to read safely.');
+    return new TextDecoder('utf-8').decode(out);
+  }
+
+  // ---------- XML helpers (regex based; the parts we read are machine-written) ----------
+
+  var ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+  function unescapeXml(s) {
+    if (s.indexOf('&') < 0) return s;
+    return s.replace(/&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);/g, function (m, g) {
+      if (g[0] === '#') {
+        var code = g[1] === 'x' ? parseInt(g.slice(2), 16) : parseInt(g.slice(1), 10);
+        return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : '';
+      }
+      return ENTITIES[g];
+    }).replace(/_x([0-9A-Fa-f]{4})_/g, function (m, h) { return String.fromCharCode(parseInt(h, 16)); });
+  }
+
+  function attr(tagAttrs, name) {
+    var m = new RegExp('(?:^|\\s)' + name + '="([^"]*)"').exec(tagAttrs);
+    return m ? unescapeXml(m[1]) : null;
+  }
+
+  function textRuns(xml) {
+    // Concatenate every <t> inside the fragment, skipping phonetic runs.
+    var cleaned = xml.replace(/<rPh[\s\S]*?<\/rPh>/g, '');
+    var out = '';
+    var re = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
+    var m;
+    while ((m = re.exec(cleaned))) out += unescapeXml(m[1]);
+    return out;
+  }
+
+  function parseSharedStrings(xml) {
+    var list = [];
+    if (!xml) return list;
+    var re = /<si>([\s\S]*?)<\/si>|<si\/>/g;
+    var m;
+    while ((m = re.exec(xml))) list.push(m[1] ? textRuns(m[1]) : '');
+    return list;
+  }
+
+  function colIndex(ref) {
+    var n = 0;
+    for (var i = 0; i < ref.length; i++) {
+      var c = ref.charCodeAt(i);
+      if (c < 65 || c > 90) break;
+      n = n * 26 + (c - 64);
+    }
+    return n - 1;
+  }
+
+  function parseSheet(xml, shared) {
+    var rows = [];
+    var rowRe = /<row\b[^>]*?(?:\/>|>([\s\S]*?)<\/row>)/g;
+    var rm;
+    while ((rm = rowRe.exec(xml))) {
+      if (rows.length >= MAX_ROWS) throw XlsxError('The sheet has more rows than this report supports.');
+      var row = [];
+      var body = rm[1];
+      if (body) {
+        var cellRe = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+        var cm;
+        while ((cm = cellRe.exec(body))) {
+          var attrs = cm[1];
+          var inner = cm[2];
+          var ref = attr(attrs, 'r');
+          var idx = ref ? colIndex(ref) : row.length;
+          if (idx < 0 || idx > 16383) continue;
+          var type = attr(attrs, 't') || 'n';
+          var value = null;
+          if (inner) {
+            var vm = /<v>([\s\S]*?)<\/v>/.exec(inner);
+            if (type === 'inlineStr') value = textRuns(inner);
+            else if (vm) {
+              var raw = unescapeXml(vm[1]);
+              if (type === 's') value = shared[parseInt(raw, 10)];
+              else if (type === 'b') value = raw === '1';
+              else if (type === 'str' || type === 'e') value = raw;
+              else { var num = Number(raw); value = isFinite(num) ? num : raw; }
+              if (value === undefined) value = null;
+            }
+          }
+          row[idx] = value;
+        }
+      }
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  /**
+   * Read one worksheet as an array of rows (arrays of cell values).
+   * preferredSheet: sheet name to use when present; otherwise the first sheet.
+   * Returns { sheetName, rows, sheetNames }.
+   */
+  async function readWorkbook(arrayBuffer, preferredSheet) {
+    if (typeof DecompressionStream === 'undefined') {
+      throw XlsxError('This browser is too old to open Excel files. Use a current version of Edge or Chrome.');
+    }
+    var bytes = arrayBuffer instanceof Uint8Array ? arrayBuffer : new Uint8Array(arrayBuffer);
+    if (bytes.length > MAX_FILE_BYTES) throw XlsxError('That file is larger than 60 MB, which is not a normal export.');
+    if (bytes.length < 4 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) {
+      throw XlsxError('This is not an Excel .xlsx file. Export the report from Excel as .xlsx and try again.');
+    }
+    var zip = readZipDirectory(bytes);
+    var wbXml = await readEntry(zip, 'xl/workbook.xml');
+    var relsXml = await readEntry(zip, 'xl/_rels/workbook.xml.rels');
+    if (!wbXml || !relsXml) throw XlsxError('This file is a ZIP but not an Excel workbook.');
+
+    var rels = {};
+    var relRe = /<Relationship\b([^>]*?)\/?>/g;
+    var m;
+    while ((m = relRe.exec(relsXml))) rels[attr(m[1], 'Id')] = attr(m[1], 'Target');
+
+    var sheets = [];
+    var sheetRe = /<sheet\b([^>]*?)\/?>/g;
+    while ((m = sheetRe.exec(wbXml))) {
+      var target = rels[attr(m[1], 'r:id')];
+      if (!target) continue;
+      target = target.replace(/^\/?(xl\/)?/, '');
+      sheets.push({ name: attr(m[1], 'name'), path: 'xl/' + target });
+    }
+    if (!sheets.length) throw XlsxError('The workbook has no worksheets.');
+    var chosen = sheets[0];
+    for (var i = 0; i < sheets.length; i++) if (sheets[i].name === preferredSheet) chosen = sheets[i];
+
+    var shared = parseSharedStrings(await readEntry(zip, 'xl/sharedStrings.xml'));
+    var sheetXml = await readEntry(zip, chosen.path);
+    if (!sheetXml) throw XlsxError('The worksheet "' + chosen.name + '" could not be read.');
+    return {
+      sheetName: chosen.name,
+      sheetNames: sheets.map(function (s) { return s.name; }),
+      rows: parseSheet(sheetXml, shared)
+    };
+  }
+
+  BGI.xlsx = { readWorkbook: readWorkbook, _parseSheet: parseSheet, _parseSharedStrings: parseSharedStrings };
+})(typeof globalThis !== 'undefined' ? (globalThis.BGI = globalThis.BGI || {}) : (window.BGI = window.BGI || {}));
+
+/*
+ * Calculation engine. Hard rules only: every figure the report shows is either
+ * read straight from an input file or produced by one of the formulas below.
+ * No estimates, no AI, no network. All money is held in whole cents.
+ *
+ * Inputs
+ *   1. The UNDERBILLING_CASHPOSITION_RPT Excel export (one row per job, plus a
+ *      SUBJOB_DETAIL column carrying each sub-job's figures).
+ *   2. The month-end Adjusted Underbillings schedule (CSV, one row per line of
+ *      the schedule the CFO issues).
+ *
+ * Rules are documented for people in docs/RULES.md; keep the two in step.
+ */
+(function (BGI) {
+  'use strict';
+
+  var RULES = {
+    SMALL_JOB_THRESHOLD_DOLLARS: 10000, // schedule groups jobs under this into one line
+    BILLED_OVER_CONTRACT_TOLERANCE: 1.05, // billed may exceed contract by 5% before it is flagged
+    IDENTITY_TOLERANCE_CENTS: 2,          // rounding allowance when re-checking the export's own math
+    SCHEDULE_MATCH_TOLERANCE_DOLLARS: 1   // schedule is printed in whole dollars
+  };
+
+  var REQUIRED_COLUMNS = [
+    'BU_CODE', 'JOB_CODE', 'JOB_NAME', 'PX', 'CONTRACT_VALUE', 'START_DATE',
+    'COST_TO_DATE', 'BILLED_TO_DATE', 'UNDERBILLED_AMOUNT', 'OVERBILLED_AMOUNT',
+    'NET_BILL_AMOUNT', 'AR_PAID_AMOUNT', 'AR_OUTSTANDING_AMOUNT',
+    'AP_PAID_AMOUNT', 'PAID_AMOUNT_VOUCHER', 'PAID_AMOUNT_NON_VOUCHER',
+    'AP_OUTSTANDING_AMOUNT', 'AP_OPEN_COUNT', 'CASH_POSITION', 'SUBJOB_DETAIL'
+  ];
+
+  // Positional layout of each entry in SUBJOB_DETAIL (BigQuery struct order).
+  var SUB_FIELDS = ['code', 'name', 'status', 'arStatus', 'contract', 'actStart', 'estStart', 'actCompl', 'estCompl',
+    'start', 'end', 'cost', 'billed', 'under', 'netBill', 'cumBill', 'arPaid', 'arOut', 'apPaid', 'apV', 'apNV',
+    'apOut', 'apOpen', 'lastJbb', 'lastAr', 'apCalc'];
+  var SUB_MONEY = ['contract', 'cost', 'billed', 'under', 'netBill', 'cumBill', 'arPaid', 'arOut', 'apPaid', 'apV', 'apNV', 'apOut'];
+
+  function EngineError(message) { var e = new Error(message); e.name = 'EngineError'; return e; }
+
+  // ---------- primitives ----------
+
+  function cents(v) {
+    if (v === null || v === undefined || v === '') return 0;
+    var n = typeof v === 'number' ? v : Number(String(v).replace(/[$,\s]/g, ''));
+    if (!isFinite(n)) return 0;
+    return Math.round(n * 100);
+  }
+  function text(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+
+  // Excel serial date -> 'YYYY-MM-DD'. Accepts ISO-like strings too.
+  function isoDate(v) {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') {
+      if (v < 1 || v > 2958465) return null;
+      var ms = Math.round((Math.floor(v) - 25569) * 86400000);
+      return new Date(ms).toISOString().slice(0, 10);
+    }
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v));
+    if (m) return m[1] + '-' + m[2] + '-' + m[3];
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(String(v).trim());
+    if (m) {
+      var y = m[3].length === 2 ? 2000 + parseInt(m[3], 10) : parseInt(m[3], 10);
+      return y + '-' + ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2);
+    }
+    return null;
+  }
+
+  // ---------- AP categories ----------
+
+  var CATEGORIES = [
+    { id: 'GC', label: 'GCs', long: 'General conditions', requested: true },
+    { id: 'GR', label: 'GRs', long: 'General requirements', requested: true },
+    { id: 'GCGR', label: 'GCs / GRs combined', long: 'Sub-job that holds general conditions and general requirements together' },
+    { id: 'TRADES', label: 'Trades', long: 'Trade contractors / cost of work', requested: true },
+    { id: 'INS', label: 'Insurance', long: 'Insurance', requested: true },
+    { id: 'PRECON', label: 'Precon', long: 'Preconstruction' },
+    { id: 'PAYROLL', label: 'Payroll', long: 'Payroll' },
+    { id: 'NR', label: 'Non-reimbursable', long: 'Non-reimbursable cost' },
+    { id: 'FEE', label: 'GMP / fee', long: 'GMP and fee sub-jobs' },
+    { id: 'ODP', label: 'Owner direct purchase', long: 'Owner direct purchase (ODP)' },
+    { id: 'SEC', label: 'Ops / exec', long: 'Operations and executive sub-jobs (98 / 99)' },
+    { id: 'EST', label: 'Estimating', long: 'Estimating (ES) job' },
+    { id: 'OTHER', label: 'Other sub-jobs', long: 'Sub-jobs whose name does not state a category' },
+    { id: 'MAIN', label: 'Main job number', long: 'Posted to the main job number, not to a category sub-job' }
+  ];
+  var CATEGORY_BY_ID = {};
+  CATEGORIES.forEach(function (c, i) { c.order = i; CATEGORY_BY_ID[c.id] = c; });
+
+  // Ordered: first match wins. Tested against the end of the sub-job name.
+  var CATEGORY_RULES = [
+    ['INS', /insur/i],
+    ['NR', /non[\s-]*r(ei|ie)mb|noon\s+reimb|\bNRs?\b/i],
+    ['GCGR', /GC'?s?\s*(\/|&|and)?\s*GR'?s?\s*$/i],
+    ['GR', /\bGR'?s?\s*$|general\s+req/i],
+    ['GC', /\bGC'?s?\s*$|general\s+cond/i],
+    ['TRADES', /trades?\s*$|cost\s+of\s+(the\s+)?work|\bCOW\s*$/i],
+    ['PRECON', /pre-?\s?con/i],
+    ['PAYROLL', /payroll|\bPR\s*$/i],
+    ['FEE', /\bGMP\s*$|\bfee\s*$/i],
+    ['ODP', /\bODP\s*$/i],
+    ['SEC', /\bops\b|\bexec\b|bonus|commission/i]
+  ];
+
+  function categorize(subCode, subName, jobCode) {
+    if (subCode === jobCode) return 'MAIN';
+    var name = text(subName);
+    for (var i = 0; i < CATEGORY_RULES.length; i++) if (CATEGORY_RULES[i][1].test(name)) return CATEGORY_RULES[i][0];
+    var suffix = subCode.indexOf(jobCode) === 0 ? subCode.slice(jobCode.length) : '';
+    if (suffix === '98' || suffix === '99') return 'SEC';
+    if (/ES$/i.test(subCode)) return 'EST';
+    return 'OTHER';
+  }
+
+  // ---------- Excel export ----------
+
+  function parseSubjobs(raw, jobCode, problems) {
+    var out = [];
+    if (!raw) return out;
+    var parsed;
+    try { parsed = JSON.parse(raw); } catch (e) { problems.push('Job ' + jobCode + ': SUBJOB_DETAIL could not be read.'); return out; }
+    var list = parsed && Array.isArray(parsed.v) ? parsed.v : [];
+    for (var i = 0; i < list.length; i++) {
+      var f = list[i] && list[i].v && Array.isArray(list[i].v.f) ? list[i].v.f : null;
+      if (!f || f.length < SUB_FIELDS.length) { problems.push('Job ' + jobCode + ': a sub-job entry has an unexpected layout.'); continue; }
+      var s = {};
+      for (var k = 0; k < SUB_FIELDS.length; k++) s[SUB_FIELDS[k]] = f[k] ? f[k].v : null;
+      for (var j = 0; j < SUB_MONEY.length; j++) s[SUB_MONEY[j]] = cents(s[SUB_MONEY[j]]);
+      s.code = text(s.code);
+      s.name = text(s.name);
+      s.apOpen = parseInt(s.apOpen, 10) || 0;
+      s.category = categorize(s.code, s.name, jobCode);
+      out.push(s);
+    }
+    return out;
+  }
+
+  function parseExport(rows) {
+    if (!rows || rows.length < 2) throw EngineError('The Excel sheet is empty.');
+    var header = rows[0].map(text);
+    var col = {};
+    header.forEach(function (h, i) { if (h) col[h] = i; });
+    var missing = REQUIRED_COLUMNS.filter(function (c) { return !(c in col); });
+    if (missing.length) {
+      throw EngineError('This does not look like the UNDERBILLING_CASHPOSITION export. Missing column' +
+        (missing.length > 1 ? 's' : '') + ': ' + missing.join(', ') + '.');
+    }
+    function get(r, name) { return name in col ? r[col[name]] : null; }
+
+    var jobs = [];
+    var byCode = {};
+    var problems = [];
+    var apCalcDates = {};
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r || !text(get(r, 'JOB_CODE'))) continue;
+      var code = text(get(r, 'JOB_CODE'));
+      if (byCode[code]) { problems.push('Job ' + code + ' appears more than once; the first row is used.'); continue; }
+      var job = {
+        code: code,
+        name: text(get(r, 'JOB_NAME')),
+        bu: text(get(r, 'BU_CODE')),
+        px: text(get(r, 'PX')),
+        rd: text(get(r, 'RD')),
+        rd2: text(get(r, 'RD_2')),
+        arStatus: text(get(r, 'AR_STATUS_DESCRIPTION')),
+        startDate: isoDate(get(r, 'START_DATE')),
+        lastArPost: isoDate(get(r, 'LAST_AR_POST_DATE')),
+        lastBillPost: isoDate(get(r, 'LAST_JBB_POST_DATE')),
+        apCalcDate: isoDate(get(r, 'AP_CALCULATION_DATE')),
+        hasContract: get(r, 'CONTRACT_VALUE') !== null && get(r, 'CONTRACT_VALUE') !== undefined,
+        contract: cents(get(r, 'CONTRACT_VALUE')),
+        cost: cents(get(r, 'COST_TO_DATE')),
+        billed: cents(get(r, 'BILLED_TO_DATE')),
+        underReported: cents(get(r, 'UNDERBILLED_AMOUNT')),
+        overReported: cents(get(r, 'OVERBILLED_AMOUNT')),
+        position: text(get(r, 'BILLING_POSITION')),
+        netBill: cents(get(r, 'NET_BILL_AMOUNT')),
+        cumBill: cents(get(r, 'CUM_BILL_AMOUNT')),
+        arPaid: cents(get(r, 'AR_PAID_AMOUNT')),
+        arOut: cents(get(r, 'AR_OUTSTANDING_AMOUNT')),
+        apPaid: cents(get(r, 'AP_PAID_AMOUNT')),
+        apV: cents(get(r, 'PAID_AMOUNT_VOUCHER')),
+        apNV: cents(get(r, 'PAID_AMOUNT_NON_VOUCHER')),
+        apOut: cents(get(r, 'AP_OUTSTANDING_AMOUNT')),
+        apOpen: Math.round(Number(get(r, 'AP_OPEN_COUNT')) || 0),
+        cashReported: cents(get(r, 'CASH_POSITION')),
+        cashPctReported: typeof get(r, 'CASH_POSITION_PERCENT') === 'number' ? get(r, 'CASH_POSITION_PERCENT') : null,
+        subCount: Math.round(Number(get(r, 'JOB_AND_SUBJOB_COUNT')) || 0)
+      };
+      job.subs = parseSubjobs(get(r, 'SUBJOB_DETAIL'), code, problems);
+      // Derived by this engine (never trusted from the file):
+      job.under = job.cost - job.billed;          // Rule E1
+      job.cash = job.arPaid - job.apPaid;         // Rule E3
+      job.cashPct = job.contract !== 0 ? job.cash / job.contract : null; // Rule E7
+      job.contractSubs = job.subs.reduce(function (a, s) { return a + s.contract; }, 0);
+      job.checks = exportChecksForJob(job);
+      if (job.apCalcDate) apCalcDates[job.apCalcDate] = (apCalcDates[job.apCalcDate] || 0) + 1;
+      jobs.push(job);
+      byCode[code] = job;
+    }
+    if (!jobs.length) throw EngineError('The Excel sheet has headers but no job rows.');
+    var asOf = Object.keys(apCalcDates).sort().pop() || null;
+    return { jobs: jobs, byCode: byCode, problems: problems, asOf: asOf, apCalcDates: apCalcDates };
+  }
+
+  function near(a, b) { return Math.abs(a - b) <= RULES.IDENTITY_TOLERANCE_CENTS; }
+  function sumSubs(job, field) { return job.subs.reduce(function (a, s) { return a + s[field]; }, 0); }
+
+  // Identity and plausibility checks on one row of the export.
+  function exportChecksForJob(job) {
+    var c = {};
+    c.E1 = near(job.underReported, job.cost - job.billed);
+    c.E2 = near(job.overReported, -job.underReported);
+    c.E3 = near(job.cashReported, job.arPaid - job.apPaid);
+    c.E4 = near(job.apPaid, job.apV + job.apNV);
+    c.E5 = near(job.netBill, job.arPaid + job.arOut);
+    c.E6 = !job.subs.length || (near(job.cost, sumSubs(job, 'cost')) && near(job.billed, sumSubs(job, 'billed')) &&
+      near(job.netBill, sumSubs(job, 'netBill')) && near(job.arPaid, sumSubs(job, 'arPaid')) && near(job.arOut, sumSubs(job, 'arOut')) &&
+      near(job.apPaid, sumSubs(job, 'apPaid')) && near(job.apOut, sumSubs(job, 'apOut')));
+    c.E7 = job.cashPctReported === null || job.contract === 0 || Math.abs(job.cashPctReported - job.cash / job.contract) < 1e-6;
+    // Plausibility: is the figure believable enough to act on?
+    c.P1 = !(job.apPaid > 0 && job.cost < job.apPaid); // cost to date can never be less than what has already been paid out
+    c.P2 = !(job.contract > 0 && job.billed > job.contract * RULES.BILLED_OVER_CONTRACT_TOLERANCE);
+    return c;
+  }
+
+  var CHECK_TEXT = {
+    E1: ['Underbilled amount = cost to date − billed to date', 'UNDERBILLED_AMOUNT = COST_TO_DATE − BILLED_TO_DATE'],
+    E2: ['Overbilled amount is the mirror of underbilled', 'OVERBILLED_AMOUNT = −UNDERBILLED_AMOUNT'],
+    E3: ['Cash position = collected from owner − paid out', 'CASH_POSITION = AR_PAID_AMOUNT − AP_PAID_AMOUNT'],
+    E4: ['AP paid = voucher + non-voucher payments', 'AP_PAID_AMOUNT = PAID_AMOUNT_VOUCHER + PAID_AMOUNT_NON_VOUCHER'],
+    E5: ['Net billed = collected + still owed by owner', 'NET_BILL_AMOUNT = AR_PAID_AMOUNT + AR_OUTSTANDING_AMOUNT'],
+    E6: ['Job row = the sum of its sub-jobs', 'Each money column on the job row equals the sum of SUBJOB_DETAIL'],
+    E7: ['Cash position % = cash position ÷ contract value', 'CASH_POSITION_PERCENT = CASH_POSITION ÷ CONTRACT_VALUE'],
+    P1: ['Cost to date is at least what has already been paid out', 'COST_TO_DATE is lower than AP_PAID_AMOUNT'],
+    P2: ['Billed to date does not exceed the contract value', 'BILLED_TO_DATE is more than 105% of CONTRACT_VALUE']
+  };
+
+  function apByCategory(job) {
+    var map = {};
+    job.subs.forEach(function (s) {
+      var g = map[s.category] || (map[s.category] = { id: s.category, apPaid: 0, apV: 0, apNV: 0, apOut: 0, apOpen: 0, subs: [] });
+      g.apPaid += s.apPaid; g.apV += s.apV; g.apNV += s.apNV; g.apOut += s.apOut; g.apOpen += s.apOpen; g.subs.push(s);
+    });
+    var rows = [];
+    CATEGORIES.forEach(function (c) {
+      var g = map[c.id];
+      if (!g && !c.requested) return;                       // the four requested categories always show
+      if (!g) g = { id: c.id, apPaid: 0, apV: 0, apNV: 0, apOut: 0, apOpen: 0, subs: [] };
+      if (!c.requested && g.apPaid === 0 && g.apOut === 0) return; // hide empty extras
+      g.label = c.label; g.long = c.long; g.requested = !!c.requested; g.present = !!map[c.id];
+      rows.push(g);
+    });
+    var total = rows.reduce(function (a, g) { return a + g.apPaid; }, 0);
+    rows.forEach(function (g) { g.share = total !== 0 ? g.apPaid / total : 0; });
+    return { rows: rows, total: total, totalOut: rows.reduce(function (a, g) { return a + g.apOut; }, 0) };
+  }
+
+  // ---------- Schedule CSV ----------
+
+  function parseCsv(textIn) {
+    var s = String(textIn).replace(/^﻿/, '');
+    var rows = [], row = [], field = '', q = false;
+    for (var i = 0; i < s.length; i++) {
+      var ch = s[i];
+      if (q) {
+        if (ch === '"') { if (s[i + 1] === '"') { field += '"'; i++; } else q = false; }
+        else field += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && s[i + 1] === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += ch;
+    }
+    row.push(field);
+    if (row.length > 1 || row[0] !== '') rows.push(row);
+    return rows;
+  }
+
+  function wholeDollars(v) {
+    var t = text(v);
+    if (t === '' || t === '-') return 0;
+    var neg = /^\(.*\)$/.test(t);
+    var n = Number(t.replace(/[$,()\s]/g, ''));
+    if (!isFinite(n)) throw EngineError('The schedule file has an amount that is not a number: "' + t + '".');
+    return Math.round(neg ? -n : n);
+  }
+
+  var SECTIONS = [
+    { id: 'NOT_STARTED', title: 'Jobs not started yet', blurb: 'Construction start date is after the report date. Cost so far is usually precon or early mobilization.' },
+    { id: 'SMALL', title: 'Small jobs', blurb: 'Every job underbilled less than $10,000, rolled into one line.' },
+    { id: 'IN_PROCESS', title: 'Jobs in process', blurb: 'Construction has started.' }
+  ];
+
+  function parseSchedule(csvText) {
+    var rows = parseCsv(csvText);
+    if (rows.length < 2) throw EngineError('The schedule file is empty.');
+    var header = rows[0].map(function (h) { return text(h).toLowerCase(); });
+    var col = {};
+    header.forEach(function (h, i) { col[h] = i; });
+    var periodCols = header.filter(function (h) { return /^underbilling_\d{4}-\d{2}-\d{2}$/.test(h); }).sort();
+    var netCol = header.filter(function (h) { return /^net_billing_\d{4}-\d{2}$/.test(h); })[0];
+    var need = ['row_type', 'section', 'job_code', 'job_name'];
+    var missing = need.filter(function (n) { return !(n in col); });
+    if (missing.length || periodCols.length < 1) {
+      throw EngineError('This does not look like an Underbilling Schedule file. It needs the columns row_type, section, job_code, job_name and at least one underbilling_YYYY-MM-DD column.');
+    }
+    var periods = periodCols.map(function (h) { return h.slice('underbilling_'.length); });
+    var lines = [], printed = { subtotals: {}, total: null };
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i];
+      var g = function (name) { return name in col ? text(r[col[name]]) : ''; };
+      var type = g('row_type').toLowerCase();
+      var amounts = periodCols.map(function (h) { return wholeDollars(r[col[h]]); });
+      var section = g('section').toUpperCase();
+      if (type === 'subtotal') { printed.subtotals[section] = amounts; continue; }
+      if (type === 'total') { printed.total = amounts; continue; }
+      if (type !== 'job' && type !== 'small') throw EngineError('Schedule row ' + (i + 1) + ' has an unknown row_type "' + g('row_type') + '".');
+      if (!SECTIONS.some(function (s) { return s.id === section; })) throw EngineError('Schedule row ' + (i + 1) + ' has an unknown section "' + g('section') + '".');
+      var pct = g('billed_to_date_pct');
+      lines.push({
+        id: type === 'small' ? 'SMALL' : g('job_code'),
+        type: type, section: section, code: g('job_code'), name: g('job_name'),
+        am: g('area_manager'), px: g('project_executive'),
+        amounts: amounts,
+        constStart: isoDate(g('const_start')),
+        netBilling: netCol && g(netCol) !== '' ? wholeDollars(g(netCol)) : null,
+        billedPct: pct === '' ? null : Number(pct),
+        comment: g('comment')
+      });
+    }
+    if (!lines.length) throw EngineError('The schedule file has no job lines.');
+    return { periods: periods, netMonth: netCol ? netCol.slice('net_billing_'.length) : null, lines: lines, printed: printed };
+  }
+
+  // When no schedule file is supplied, build the schedule from the export alone.
+  // Rule S1: underbilled = cost to date - billed to date, listed when above zero.
+  // Rule S2: under $10,000 rolls into the small-jobs line.
+  // Rule S4: start date after the export date = not started; otherwise in process.
+  function scheduleFromExport(exp) {
+    var asOf = exp.asOf || new Date().toISOString().slice(0, 10);
+    var lines = [], small = 0, threshold = RULES.SMALL_JOB_THRESHOLD_DOLLARS * 100;
+    exp.jobs.forEach(function (j) {
+      if (j.under <= 0) return;
+      if (j.under < threshold) { small += j.under; return; }
+      lines.push({
+        id: j.code, type: 'job', section: j.startDate && j.startDate > asOf ? 'NOT_STARTED' : 'IN_PROCESS',
+        code: j.code, name: j.name, am: j.rd2 || '', px: j.px, amounts: [Math.round(j.under / 100)],
+        constStart: j.startDate, netBilling: null,
+        billedPct: j.contract > 0 ? Math.round(j.billed / j.contract * 1000) / 10 : null, comment: ''
+      });
+    });
+    lines.sort(function (a, b) { return b.amounts[0] - a.amounts[0]; });
+    lines.push({ id: 'SMALL', type: 'small', section: 'SMALL', code: '', name: 'Jobs with underbillings less than $10,000',
+      am: '', px: '', amounts: [Math.round(small / 100)], constStart: null, netBilling: null, billedPct: null, comment: '' });
+    return { periods: [asOf], netMonth: null, lines: lines, printed: { subtotals: {}, total: null }, fromExport: true };
+  }
+
+  // ---------- Report (schedule + export joined) ----------
+
+  function addArrays(a, b) { return a.map(function (v, i) { return v + b[i]; }); }
+  function zeros(n) { var z = []; for (var i = 0; i < n; i++) z.push(0); return z; }
+
+  function buildReport(schedule, exp) {
+    var n = schedule.periods.length;
+    var cur = n - 1, prev = n - 2;
+    var asOf = schedule.periods[cur];
+    var sections = SECTIONS.map(function (s) {
+      var lines = schedule.lines.filter(function (l) { return l.section === s.id; });
+      var computed = lines.reduce(function (a, l) { return addArrays(a, l.amounts); }, zeros(n));
+      var printed = schedule.printed.subtotals[s.id] || null;
+      // Printed lines are rounded to whole dollars, so a subtotal may differ by up to $0.50 per line.
+      var tol = Math.max(1, Math.ceil(lines.length / 2));
+      var ok = !printed || printed.every(function (p, i) { return Math.abs(p - computed[i]) <= tol; });
+      return { id: s.id, title: s.title, blurb: s.blurb, lines: lines, computed: computed, subtotal: printed || computed, printed: !!printed, sumsOk: ok, tolerance: tol };
+    }).filter(function (s) { return s.lines.length; });
+
+    var totalFromSubs = sections.reduce(function (a, s) { return addArrays(a, s.subtotal); }, zeros(n));
+    var total = schedule.printed.total || totalFromSubs;
+    var totalOk = total.every(function (t, i) { return t === totalFromSubs[i]; });
+
+    var matched = 0, jobLines = 0;
+    schedule.lines.forEach(function (l) {
+      l.current = l.amounts[cur];
+      l.previous = prev >= 0 ? l.amounts[prev] : null;
+      l.change = prev >= 0 ? l.current - l.previous : null;
+      l.shareOfTotal = total[cur] !== 0 ? l.current / total[cur] : 0;
+      l.excel = l.type === 'job' && exp ? exp.byCode[l.code] || null : null;
+      if (l.type === 'job') { jobLines++; if (l.excel) matched++; }
+      // Rule S4: section follows the construction start date.
+      if (l.type === 'job' && l.constStart) {
+        var expected = l.constStart > asOf ? 'NOT_STARTED' : 'IN_PROCESS';
+        l.sectionOk = expected === l.section;
+      } else l.sectionOk = null;
+      // Rule X1: does the export arrive at the schedule's figure?
+      if (l.excel) {
+        l.excelUnderDollars = Math.max(0, l.excel.under) / 100;
+        l.excelAgrees = Math.abs(l.excelUnderDollars - l.current) <= RULES.SCHEDULE_MATCH_TOLERANCE_DOLLARS;
+      } else { l.excelUnderDollars = null; l.excelAgrees = null; }
+    });
+    var ranked = schedule.lines.filter(function (l) { return l.type === 'job' && l.current > 0; })
+      .sort(function (a, b) { return b.current - a.current; });
+    ranked.forEach(function (l, i) { l.rank = i + 1; });
+
+    return {
+      asOf: asOf, periods: schedule.periods, netMonth: schedule.netMonth, cur: cur, prev: prev,
+      sections: sections, total: total, totalOk: totalOk, lines: schedule.lines,
+      jobLines: jobLines, matched: matched, rankedCount: ranked.length,
+      fromExport: !!schedule.fromExport,
+      exportAsOf: exp ? exp.asOf : null,
+      exportStale: exp && exp.asOf ? exp.asOf < asOf : null,
+      checks: exp ? summarizeChecks(exp, schedule.lines) : null
+    };
+  }
+
+  function summarizeChecks(exp, lines) {
+    var out = [];
+    Object.keys(CHECK_TEXT).forEach(function (id) {
+      var failed = exp.jobs.filter(function (j) { return !j.checks[id]; });
+      out.push({ id: id, kind: id[0] === 'E' ? 'math' : 'plausible', title: CHECK_TEXT[id][0], formula: CHECK_TEXT[id][1],
+        total: exp.jobs.length, failed: failed.length, examples: failed.slice(0, 5).map(function (j) { return j.code; }) });
+    });
+    var jobLines = lines.filter(function (l) { return l.type === 'job'; });
+    var withExcel = jobLines.filter(function (l) { return l.excel; });
+    out.push({ id: 'X0', kind: 'match', title: 'Every job on the schedule is found in the Excel export', formula: 'Matched on job number',
+      total: jobLines.length, failed: jobLines.length - withExcel.length, examples: jobLines.filter(function (l) { return !l.excel; }).slice(0, 5).map(function (l) { return l.code; }) });
+    var disagree = withExcel.filter(function (l) { return !l.excelAgrees; });
+    out.push({ id: 'X1', kind: 'match', title: 'Excel underbilling agrees with the schedule (within $1)', formula: 'max(0, COST_TO_DATE − BILLED_TO_DATE) vs. the schedule figure',
+      total: withExcel.length, failed: disagree.length, examples: disagree.slice(0, 5).map(function (l) { return l.code; }) });
+    var sec = jobLines.filter(function (l) { return l.sectionOk !== null; });
+    var secBad = sec.filter(function (l) { return !l.sectionOk; });
+    out.push({ id: 'S4', kind: 'schedule', title: 'Each job sits in the section its construction start date calls for', formula: 'Start after the report date = not started; otherwise in process',
+      total: sec.length, failed: secBad.length, examples: secBad.slice(0, 5).map(function (l) { return l.code; }) });
+    return out;
+  }
+
+  BGI.engine = {
+    RULES: RULES, CATEGORIES: CATEGORIES, CATEGORY_BY_ID: CATEGORY_BY_ID, CHECK_TEXT: CHECK_TEXT, SECTIONS: SECTIONS,
+    cents: cents, isoDate: isoDate, categorize: categorize, parseExport: parseExport, apByCategory: apByCategory,
+    parseCsv: parseCsv, parseSchedule: parseSchedule, scheduleFromExport: scheduleFromExport, buildReport: buildReport
+  };
+})(typeof globalThis !== 'undefined' ? (globalThis.BGI = globalThis.BGI || {}) : (window.BGI = window.BGI || {}));
+
+/*
+ * Interface. Renders three views from the engine's report object:
+ *   Schedule               - mirrors the month-end Adjusted Underbillings schedule
+ *   How it was calculated  - one job, every figure traced to its source column
+ *   Data check             - the rules, re-run against every row of the inputs
+ * All text from input files is escaped before it reaches the page.
+ */
+(function (BGI) {
+  'use strict';
+  var E = BGI.engine;
+  var state = { exp: null, sched: null, report: null, tab: 'schedule', selected: null, q: '', px: '',
+    exportName: null, scheduleName: null, exportModified: null, server: false, token: null, loading: false };
+  var root, toastTimer;
+
+  // ---------- formatting ----------
+  var ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) { return ESC[c]; }); }
+  function usd(d) { var a = Math.abs(Math.round(d)).toLocaleString('en-US'); return d < 0 ? '($' + a + ')' : '$' + a; }
+  function usdCell(d) { return d === 0 ? '<span class="muted">–</span>' : usd(d); }
+  function usdC(c) {
+    var a = Math.abs(c), s = '$' + Math.floor(a / 100).toLocaleString('en-US') + '.' + ('0' + (a % 100)).slice(-2);
+    return c < 0 ? '−' + s : s;
+  }
+  function usdShort(d) {
+    var a = Math.abs(d);
+    if (a >= 1e6) return '$' + (a / 1e6).toFixed(2) + 'M';
+    if (a >= 1e3) return '$' + Math.round(a / 1e3) + 'K';
+    return '$' + Math.round(a);
+  }
+  function pct(x, digits) { return (x * 100).toFixed(digits === undefined ? 1 : digits) + '%'; }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function parts(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ''); return m ? { y: +m[1], m: +m[2], d: +m[3] } : null; }
+  function dLong(iso) { var p = parts(iso); return p ? MONTHS[p.m - 1] + ' ' + p.d + ', ' + p.y : '—'; }
+  function dShort(iso) { var p = parts(iso); return p ? ('0' + p.m).slice(-2) + '/' + ('0' + p.d).slice(-2) + '/' + String(p.y).slice(-2) : '—'; }
+  function monthName(iso) { var p = parts(iso); return p ? MONTHS[p.m - 1] : ''; }
+  function daysBetween(a, b) { return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000); }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
+
+  function displayName(l) {
+    if (l.excel && l.excel.name.length > l.name.length && l.excel.name.indexOf(l.name) === 0) return l.excel.name;
+    return l.name;
+  }
+
+  // ---------- charts ----------
+  function donut(segs, size, centerTop, centerBottom) {
+    var r = size / 2 - 16, c = 2 * Math.PI * r, cx = size / 2;
+    var pos = segs.filter(function (s) { return s.value > 0; });
+    var total = pos.reduce(function (a, s) { return a + s.value; }, 0);
+    var out = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" role="img" aria-label="' + esc(centerBottom + ': ' + centerTop) + '">';
+    out += '<circle cx="' + cx + '" cy="' + cx + '" r="' + r + '" fill="none" stroke="#ebeff5" stroke-width="26"/>';
+    var start = 0, gap = pos.length > 1 ? 2 : 0;
+    pos.forEach(function (s) {
+      var len = s.value / total * c;
+      var draw = Math.max(0.5, len - gap);
+      out += '<circle cx="' + cx + '" cy="' + cx + '" r="' + r + '" fill="none" stroke="' + s.color + '" stroke-width="26" stroke-dasharray="' +
+        draw.toFixed(2) + ' ' + (c - draw).toFixed(2) + '" stroke-dashoffset="' + (-start).toFixed(2) + '" transform="rotate(-90 ' + cx + ' ' + cx + ')">' +
+        '<title>' + esc(s.label + ': ' + s.text + ' (' + pct(s.value / total) + ')') + '</title></circle>';
+      start += len;
+    });
+    out += '<text x="' + cx + '" y="' + (cx - 2) + '" text-anchor="middle" font-family="Bahnschrift, Segoe UI, sans-serif" font-weight="700" font-size="' + (size > 200 ? 24 : 19) + '" fill="#101b33">' + esc(centerTop) + '</text>';
+    out += '<text x="' + cx + '" y="' + (cx + 18) + '" text-anchor="middle" font-size="12" fill="#5a6478">' + esc(centerBottom) + '</text></svg>';
+    return out;
+  }
+
+  // ---------- shared bits ----------
+  function changeCell(l) {
+    if (l.change === null) return '';
+    if (l.change === 0) return '<span class="chg flat">no change</span>';
+    var up = l.change > 0;
+    var tag = l.previous === 0 ? ' <span class="tag tag-new">new</span>' : (l.current === 0 ? ' <span class="tag tag-clear">cleared</span>' : '');
+    return '<span class="chg ' + (up ? 'up' : 'down') + '"><span aria-hidden="true">' + (up ? '▲' : '▼') + '</span>' +
+      '<span class="sr">' + (up ? 'up ' : 'down ') + '</span>' + usd(Math.abs(l.change)) + '</span>' + tag;
+  }
+
+  var SECTION_COLOR = { IN_PROCESS: 'var(--s1)', NOT_STARTED: 'var(--s2)', SMALL: 'var(--s3)' };
+  var SECTION_HEX = { IN_PROCESS: '#2a78d6', NOT_STARTED: '#eb6834', SMALL: '#1baf7a' };
+
+  // ---------- view: schedule ----------
+  function matchesFilter(l) {
+    if (state.px && l.px !== state.px) return false;
+    if (!state.q) return true;
+    var q = state.q.toLowerCase();
+    return (displayName(l) + ' ' + l.code + ' ' + l.px + ' ' + l.am).toLowerCase().indexOf(q) >= 0;
+  }
+
+  function sourceLine(rep) {
+    var h = '<p class="source-line">';
+    if (rep.fromExport) {
+      h += '<span><span class="pill pill-warn">Excel only</span> No schedule file is loaded, so this page is calculated from the Excel export alone.</span>';
+    } else {
+      h += '<span>Schedule figures from <b>' + esc(state.scheduleName || 'the schedule file') + '</b></span>';
+    }
+    if (state.exp) {
+      h += '<span>Job detail from <b>' + esc(state.exportName || 'the Excel export') + '</b>, data as of ' + dLong(rep.exportAsOf) + '</span>';
+      if (!rep.fromExport && rep.exportStale) h += '<span class="pill pill-warn">Excel is ' + plural(daysBetween(rep.exportAsOf, rep.asOf), 'day') + ' older than the schedule</span>';
+      var x1 = rep.checks.filter(function (c) { return c.id === 'X1'; })[0];
+      if (!rep.fromExport && x1 && x1.failed) {
+        h += '<button class="linkish" data-action="tab" data-tab="check">Excel supports ' + (x1.total - x1.failed) + ' of ' + x1.total + ' schedule figures. See why</button>';
+      }
+    } else {
+      h += '<span class="pill pill-warn">No Excel export loaded</span><span>Drop the UNDERBILLING_CASHPOSITION export on this window to see how each line was calculated.</span>';
+    }
+    return h + '</p>';
+  }
+
+  function hero(rep) {
+    var cur = rep.cur, prev = rep.prev, total = rep.total[cur];
+    var h = '<section class="hero" aria-label="Summary">';
+    // headline
+    h += '<div class="panel headline"><div class="asof">As of ' + dLong(rep.asOf) + '</div>' +
+      '<div class="big num">' + usd(total) + '</div><div class="what">' + (rep.fromExport ? 'total underbillings in the Excel export' : 'total adjusted underbillings') + '</div>';
+    if (prev >= 0) {
+      var d = total - rep.total[prev], base = rep.total[prev];
+      h += '<div class="delta">' + (d === 0 ? 'No change from ' + monthName(rep.periods[prev]) + '.' :
+        '<b>' + (d > 0 ? 'Up ' : 'Down ') + usd(Math.abs(d)) + '</b>' + (base ? ' (' + pct(Math.abs(d) / base) + ')' : '') + ' from ' + monthName(rep.periods[prev]) + '.') + '</div>';
+      var max = Math.max.apply(null, rep.total.map(Math.abs)) || 1;
+      h += '<div class="trend" aria-label="Total by month">';
+      rep.periods.forEach(function (p, i) {
+        h += '<div class="col' + (i === cur ? ' now' : '') + '"><div class="val">' + usd(rep.total[i]) + '</div><div class="barwrap"><div class="b" style="height:' +
+          Math.max(4, Math.round(Math.abs(rep.total[i]) / max * 100)) + '%"></div></div><div class="lab">' + dShort(p) + '</div></div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+    // donut
+    var order = ['IN_PROCESS', 'NOT_STARTED', 'SMALL'];
+    var secs = order.map(function (id) { return rep.sections.filter(function (s) { return s.id === id; })[0]; }).filter(Boolean);
+    h += '<div class="panel"><h2>Where the underbilling sits</h2><div class="donut-wrap">' +
+      donut(secs.map(function (s) { return { label: s.title, value: s.subtotal[cur], text: usd(s.subtotal[cur]), color: SECTION_HEX[s.id] }; }), 190, usdShort(total), 'total') +
+      '<ul class="legend">';
+    secs.forEach(function (s) {
+      var n = s.id === 'SMALL' ? 'one rolled-up line' : plural(s.lines.filter(function (l) { return l.current > 0; }).length, 'job') + ' with a balance';
+      h += '<li><button class="rowbtn" data-action="jump" data-id="sec-' + s.id + '"><span class="sw" style="background:' + SECTION_COLOR[s.id] + '"></span>' +
+        '<span class="nm">' + esc(s.title) + '<small>' + n + '</small></span><span class="v">' + usd(s.subtotal[cur]) +
+        '<small>' + (total ? pct(s.subtotal[cur] / total) : '') + '</small></span></button></li>';
+    });
+    h += '</ul></div></div>';
+    // movers / top jobs
+    var jobs = rep.lines.filter(function (l) { return l.type === 'job'; });
+    h += '<div class="panel">';
+    if (prev >= 0) {
+      var ups = jobs.filter(function (l) { return l.change > 0; }).sort(function (a, b) { return b.change - a.change; }).slice(0, 4);
+      var downs = jobs.filter(function (l) { return l.change < 0; }).sort(function (a, b) { return a.change - b.change; }).slice(0, 4);
+      h += '<h2>What changed since ' + monthName(rep.periods[prev]) + '</h2><div class="movers">';
+      [['Went up the most', ups, 'up', '▲'], ['Came down the most', downs, 'down', '▼']].forEach(function (g) {
+        h += '<div><h3>' + g[0] + '</h3><ol>';
+        g[1].forEach(function (l) {
+          h += '<li><button data-action="open" data-id="' + esc(l.id) + '" title="See how it was calculated"><span class="n">' + esc(displayName(l)) +
+            '</span><span class="d ' + g[2] + '"><span aria-hidden="true">' + g[3] + '</span> ' + usd(Math.abs(l.change)) + '</span></button></li>';
+        });
+        if (!g[1].length) h += '<li class="none">None</li>';
+        h += '</ol></div>';
+      });
+      h += '</div>';
+    } else {
+      var top = jobs.slice().sort(function (a, b) { return b.current - a.current; }).slice(0, 6);
+      h += '<h2>Largest underbillings</h2><div class="movers" style="grid-template-columns:1fr"><div><ol>';
+      top.forEach(function (l) {
+        h += '<li><button data-action="open" data-id="' + esc(l.id) + '"><span class="n">' + esc(displayName(l)) + '</span><span class="d">' + usd(l.current) + '</span></button></li>';
+      });
+      if (!top.length) h += '<li class="none">No job is underbilled by $10,000 or more in this export.</li>';
+      h += '</ol></div></div>';
+    }
+    h += '</div></section>';
+    return h;
+  }
+
+  function scheduleView(rep) {
+    var cur = rep.cur, prev = rep.prev, hasPrev = prev >= 0;
+    var h = sourceLine(rep) + hero(rep);
+    // filters
+    var pxs = {};
+    rep.lines.forEach(function (l) { if (l.type === 'job' && l.px) pxs[l.px] = (pxs[l.px] || 0) + 1; });
+    h += '<div class="filters"><label class="sr" for="q">Find a job</label><input type="search" id="q" placeholder="Find a job by name or number" value="' + esc(state.q) + '" autocomplete="off">' +
+      '<label class="sr" for="px">Project executive</label><select id="px"><option value="">All project executives</option>';
+    Object.keys(pxs).sort().forEach(function (p) { h += '<option value="' + esc(p) + '"' + (p === state.px ? ' selected' : '') + '>' + esc(p) + ' (' + pxs[p] + ')</option>'; });
+    h += '</select>';
+    if (state.q || state.px) h += '<button class="btn" data-action="clear-filter">Show all jobs</button>';
+    h += '<span class="muted">Click any line to see how it was calculated.</span></div>';
+    var filtering = !!(state.q || state.px);
+    if (filtering) {
+      var vis = rep.lines.filter(function (l) { return l.type === 'job' && matchesFilter(l); });
+      var sum = vis.reduce(function (a, l) { return a + l.current; }, 0);
+      h += '<p class="filter-note"><b>' + plural(vis.length, 'job') + (state.px ? ' for ' + esc(state.px) : ' found') + ':</b> ' + usd(sum) + ' underbilled, ' +
+        (rep.total[cur] ? pct(sum / rep.total[cur]) : '0%') + ' of the ' + usd(rep.total[cur]) + ' company total.' +
+        (hasPrev ? ' ' + (function () { var ch = vis.reduce(function (a, l) { return a + l.change; }, 0); return ch === 0 ? 'No change' : (ch > 0 ? 'Up ' : 'Down ') + usd(Math.abs(ch)); })() + ' since ' + monthName(rep.periods[prev]) + '.' : '') + '</p>';
+    }
+    // sections
+    rep.sections.forEach(function (s) {
+      var lines = s.lines.filter(function (l) { return filtering ? l.type === 'job' && matchesFilter(l) : true; });
+      if (filtering && !lines.length) return;
+      var jobCount = s.lines.filter(function (l) { return l.type === 'job'; }).length;
+      var shown = filtering ? lines.reduce(function (a, l) { return a + l.current; }, 0) : s.subtotal[cur];
+      h += '<section class="section" id="sec-' + s.id + '"><div class="section-head"><h2>' + esc(s.title) + '</h2>' +
+        (jobCount ? '<span class="count">' + (filtering ? lines.length + ' of ' : '') + plural(jobCount, 'job') + '</span>' : '') + '<span class="blurb">' + esc(s.blurb) + '</span>' +
+        '<span class="sub num">' + usd(shown) + '</span></div><div class="tablewrap"><table class="sched"><thead><tr>' +
+        '<th>Job</th><th>Area manager</th><th>Project executive</th>';
+      rep.periods.forEach(function (p, i) { h += '<th class="r' + (i === cur ? ' now' : '') + '">' + dShort(p) + '</th>'; });
+      if (hasPrev) h += '<th class="r">Change since ' + monthName(rep.periods[prev]).slice(0, 3) + '</th>';
+      h += '<th>Const. start</th>' + (rep.netMonth ? '<th class="r">Net ' + MONTHS[+rep.netMonth.slice(5) - 1].slice(0, 3) + ' billing</th>' : '') +
+        '<th class="r">Billed to date</th><th>Comment</th><th class="seecol"><span class="sr">Open</span></th></tr></thead><tbody>';
+      lines.forEach(function (l) {
+        h += '<tr class="line" tabindex="0" role="button" data-action="open" data-id="' + esc(l.id) + '" aria-label="' + esc(displayName(l)) + ', see how it was calculated">';
+        h += '<td class="job"><b>' + esc(displayName(l)) + '</b>' + (l.code ? '<small>' + esc(l.code) + '</small>' : '') + '</td>';
+        h += '<td>' + esc(l.am) + '</td><td>' + esc(l.px) + '</td>';
+        l.amounts.forEach(function (a, i) { h += '<td class="r num ' + (i === cur ? 'now' : 'prior') + '">' + usdCell(a) + '</td>'; });
+        if (hasPrev) h += '<td class="r">' + changeCell(l) + '</td>';
+        h += '<td class="num">' + (l.constStart ? dShort(l.constStart) : '') + '</td>';
+        if (rep.netMonth) h += '<td class="r num">' + (l.netBilling === null ? '' : usdCell(l.netBilling)) + '</td>';
+        h += '<td class="r">' + (l.billedPct === null ? '' : '<span class="pct"><span class="track"><span class="fill" style="width:' + Math.max(0, Math.min(100, l.billedPct)) + '%"></span></span><span class="num">' + l.billedPct.toFixed(1) + '%</span></span>') + '</td>';
+        h += '<td class="comment">' + esc(l.comment) + '</td><td class="seecol"><span class="see">See the math ›</span></td></tr>';
+      });
+      if (!filtering) {
+        h += '<tr class="subtotal"><td colspan="3">Subtotal</td>';
+        s.subtotal.forEach(function (a, i) { h += '<td class="r num' + (i === cur ? ' now' : '') + '">' + usd(a) + '</td>'; });
+        h += '<td colspan="' + ((hasPrev ? 1 : 0) + (rep.netMonth ? 1 : 0) + 4) + '">' + (hasPrev ? changeCell({ change: s.subtotal[cur] - s.subtotal[prev], previous: 1, current: 1 }) : '') + '</td></tr>';
+      }
+      h += '</tbody></table></div></section>';
+    });
+    // grand total
+    h += '<div class="grand"><span class="t">' + (rep.fromExport ? 'Total underbillings' : 'Total adjusted underbillings') + '</span>';
+    rep.periods.forEach(function (p, i) { h += '<span class="p' + (i === cur ? ' now' : '') + '"><small>' + dShort(p) + '</small><b>' + usd(rep.total[i]) + '</b></span>'; });
+    h += '</div>';
+    return h;
+  }
+
+  // ---------- view: how it was calculated ----------
+  function term(label, value, column, cls) {
+    return '<div class="term ' + (cls || '') + '"><span class="l">' + esc(label) + '</span><span class="v">' + value + '</span>' + (column ? '<span class="c">' + esc(column) + '</span>' : '') + '</div>';
+  }
+  function op(s) { return '<span class="op" aria-hidden="true">' + s + '</span>'; }
+  function eq(title, body, note) { return '<div class="eq"><div class="eq-title">' + esc(title) + '</div><div class="eq-row">' + body + '</div>' + (note ? '<div class="eq-note">' + note + '</div>' : '') + '</div>'; }
+
+  var AP_COLOR = { GC: '#2a78d6', GR: '#eb6834', GCGR: '#1baf7a', TRADES: '#eda100', INS: '#e87ba4', OTHERS: '#6250d6', MAIN: '#9aa3b2' };
+  function apColorKey(id) { return AP_COLOR[id] ? id : 'OTHERS'; }
+
+  function picker(rep) {
+    var ids = rep.lines.map(function (l) { return l.id; });
+    var i = ids.indexOf(state.selected);
+    var h = '<div class="picker"><button class="btn" data-action="tab" data-tab="schedule">‹ Back to the schedule</button>' +
+      '<label class="sr" for="jobpick">Job</label><select id="jobpick">';
+    rep.sections.forEach(function (s) {
+      h += '<optgroup label="' + esc(s.title) + '">';
+      s.lines.forEach(function (l) { h += '<option value="' + esc(l.id) + '"' + (l.id === state.selected ? ' selected' : '') + '>' + esc(displayName(l)) + (l.code ? ' (' + esc(l.code) + ')' : '') + ' ' + usd(l.current) + '</option>'; });
+      h += '</optgroup>';
+    });
+    h += '</select><button class="btn" data-action="open" data-id="' + esc(ids[(i - 1 + ids.length) % ids.length]) + '">‹ Previous job</button>' +
+      '<button class="btn" data-action="open" data-id="' + esc(ids[(i + 1) % ids.length]) + '">Next job ›</button></div>';
+    return h;
+  }
+
+  function scheduleBlock(rep, l) {
+    var cur = rep.cur, prev = rep.prev, mon = monthName(rep.asOf);
+    var h = '<div class="panel"><div class="step"><h2>1. The number on the schedule</h2><span class="pill pill-src src">' +
+      (rep.fromExport ? 'Calculated from the Excel export' : 'From the ' + dShort(rep.asOf) + ' schedule') + '</span></div><div class="walk">';
+    rep.periods.forEach(function (p, i) { h += '<div class="cell' + (i === cur ? ' now' : '') + '"><small>' + dLong(p) + '</small><b>' + usd(l.amounts[i]) + '</b></div>'; });
+    h += '</div><ul class="plain">';
+    if (prev >= 0) {
+      var pm = monthName(rep.periods[prev]);
+      if (l.change === 0) h += '<li>No change since ' + pm + '.</li>';
+      else if (l.previous === 0) h += '<li><b class="up">New this month.</b> There was no underbilling in ' + pm + '.</li>';
+      else if (l.current === 0) h += '<li><b class="down">Cleared.</b> The ' + usd(l.previous) + ' from ' + pm + ' is gone.</li>';
+      else h += '<li>Underbilling went <b class="' + (l.change > 0 ? 'up">up ' : 'down">down ') + usd(Math.abs(l.change)) + '</b> (' + pct(Math.abs(l.change) / Math.abs(l.previous)) + ') since ' + pm + '.</li>';
+    }
+    if (l.netBilling !== null) {
+      h += l.netBilling === 0 ? '<li>Nothing was billed in ' + mon + '.</li>' :
+        (l.netBilling > 0 ? '<li>' + usd(l.netBilling) + ' was billed in ' + mon + '.</li>' : '<li>Billing was a net credit of ' + usd(Math.abs(l.netBilling)) + ' in ' + mon + '.</li>');
+    }
+    if (l.billedPct !== null) h += '<li>' + l.billedPct.toFixed(1) + '% of the contract has been billed to date.</li>';
+    if (l.current > 0 && l.rank) h += '<li>This is ' + pct(l.shareOfTotal) + ' of the company total, number ' + l.rank + ' of ' + rep.rankedCount + ' jobs with a balance.</li>';
+    if (l.constStart) {
+      h += '<li>Listed under <b>' + esc(sectionTitle(l.section)) + '</b> because construction ' + (l.constStart > rep.asOf ? 'starts ' : 'started ') + dShort(l.constStart) + ', ' +
+        (l.constStart > rep.asOf ? 'after' : 'on or before') + ' the ' + dShort(rep.asOf) + ' report date.</li>';
+    }
+    if (l.comment) h += '<li>Note on the schedule: “' + esc(l.comment) + '”</li>';
+    h += '</ul>';
+    if (prev >= 0) {
+      h += eq('Change since ' + monthName(rep.periods[prev]), term(dShort(rep.asOf), usd(l.current)) + op('−') + term(dShort(rep.periods[prev]), usd(l.previous)) + op('=') +
+        term('Change', (l.change > 0 ? '+' : '') + usd(l.change), null, 'result'));
+    }
+    return h + '</div>';
+  }
+
+  function sectionTitle(id) { var s = E.SECTIONS.filter(function (x) { return x.id === id; })[0]; return s ? s.title : id; }
+
+  function excelBlock(rep, l) {
+    var j = l.excel;
+    var h = '<div class="panel"><div class="step"><h2>2. What the Excel export calculates</h2><span class="pill pill-src src">Excel, as of ' + dShort(rep.exportAsOf) + '</span></div>';
+    if (!rep.fromExport) {
+      if (l.excelAgrees) {
+        h += '<div class="callout callout-ok"><b>The Excel export agrees with the schedule.</b>Cost to date minus billed to date comes to ' + usd(l.excelUnderDollars) + ', the same as the schedule.</div>';
+      } else {
+        var why = [];
+        if (!j.checks.P1) why.push('Cost to date is ' + usdC(j.cost) + ' in the export, but ' + usdC(j.apPaid) + ' has already been paid out on this job. Cost is missing from the export.');
+        if (!j.checks.P2) why.push('Billed to date is ' + usdC(j.billed) + ' against a ' + usdC(j.contract) + ' contract (' + (j.billed / j.contract).toFixed(1) + ' times the contract). Billing is overstated in the export.');
+        if (rep.exportStale) why.push('The export is as of ' + dLong(rep.exportAsOf) + ', ' + plural(daysBetween(rep.exportAsOf, rep.asOf), 'day') + ' before the report date.');
+        if (!why.length || (j.checks.P1 && j.checks.P2)) why.push('The schedule may also carry manual adjustments that are not in the export.');
+        h += '<div class="callout callout-warn"><b>The Excel export does not support the schedule figure yet.</b>The schedule says ' + usd(l.current) + '. The export works out to ' +
+          (j.under > 0 ? usdC(j.under) + ' underbilled' : (j.under < 0 ? usdC(-j.under) + ' overbilled' : 'even')) + '.<ul>' + why.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
+      }
+    }
+    h += eq('Underbilled amount', term('Cost to date', usdC(j.cost), 'COST_TO_DATE') + op('−') + term('Billed to date', usdC(j.billed), 'BILLED_TO_DATE') + op('=') +
+      term(j.under >= 0 ? 'Underbilled' : 'Overbilled', usdC(j.under), 'UNDERBILLED_AMOUNT', 'result'),
+      'A positive result means cost is ahead of billing (underbilled). Negative means billing is ahead of cost (overbilled).' +
+      (j.checks.E1 ? '' : ' <span class="off">The export\'s own UNDERBILLED_AMOUNT column says ' + usdC(j.underReported) + '.</span>'));
+    h += '<ul class="facts"><li>Contract value <b>' + (j.hasContract ? usdC(j.contract) : 'not in export') + '</b></li><li>Excel project executive <b>' + esc(j.px || '—') + '</b></li>' +
+      '<li>Excel start date <b>' + dShort(j.startDate) + '</b></li><li>Last billing posted <b>' + dShort(j.lastBillPost) + '</b></li></ul>';
+    return h + '</div>';
+  }
+
+  function cashBlock(l) {
+    var j = l.excel;
+    var h = '<div class="panel"><div class="step"><h2>3. Cash position</h2><span class="pill pill-src src">Excel</span></div>';
+    h += eq('Cash position', term('Collected from owner', usdC(j.arPaid), 'AR_PAID_AMOUNT') + op('−') + term('Paid out', usdC(j.apPaid), 'AP_PAID_AMOUNT') + op('=') +
+      term(j.cash >= 0 ? 'Cash ahead' : 'Cash behind', usdC(j.cash), 'CASH_POSITION', 'result'),
+      j.cash >= 0 ? 'More has been collected from the owner than paid out.' : 'More has been paid out than collected from the owner.');
+    if (j.cashPct !== null) {
+      h += eq('Cash position as a share of the contract', term('Cash position', usdC(j.cash), 'CASH_POSITION') + op('÷') + term('Contract value', usdC(j.contract), 'CONTRACT_VALUE') + op('=') +
+        term('Share of contract', pct(j.cashPct), 'CASH_POSITION_PERCENT', 'result'));
+    }
+    h += eq('Billing and collections', term('Collected', usdC(j.arPaid), 'AR_PAID_AMOUNT') + op('+') + term('Still owed by owner', usdC(j.arOut), 'AR_OUTSTANDING_AMOUNT') + op('=') +
+      term('Net billed', usdC(j.arPaid + j.arOut), 'NET_BILL_AMOUNT', 'result'),
+      (j.arStatus ? 'Owner payment status: ' + esc(j.arStatus) + '. ' : '') + 'Last payment posted ' + dShort(j.lastArPost) + '.' +
+      (j.checks.E5 ? '' : ' <span class="off">The export\'s NET_BILL_AMOUNT column says ' + usdC(j.netBill) + ', a difference of ' + usdC(Math.abs(j.netBill - j.arPaid - j.arOut)) + '.</span>'));
+    return h + '</div>';
+  }
+
+  function apBlock(l) {
+    var j = l.excel, ap = E.apByCategory(j);
+    var h = '<div class="panel wide"><div class="step"><h2>5. AP by category</h2><span class="pill pill-src src">Excel sub-jobs</span></div>';
+    var buckets = {};
+    ap.rows.forEach(function (g) { var k = apColorKey(g.id); buckets[k] = (buckets[k] || 0) + Math.max(0, g.apPaid); });
+    var labels = { GC: 'GCs', GR: 'GRs', GCGR: 'GCs / GRs combined', TRADES: 'Trades', INS: 'Insurance', OTHERS: 'Other sub-jobs', MAIN: 'Main job number' };
+    var segs = ['GC', 'GR', 'GCGR', 'TRADES', 'INS', 'OTHERS', 'MAIN'].filter(function (k) { return buckets[k] > 0; })
+      .map(function (k) { return { label: labels[k], value: buckets[k], text: usdC(buckets[k]), color: AP_COLOR[k] }; });
+    h += '<div class="donut-wrap" style="align-items:flex-start">';
+    if (segs.length) h += donut(segs, 220, usdShort(ap.total / 100), 'AP paid');
+    h += '<div style="flex:1;min-width:0"><div class="tablewrap"><table class="mini"><thead><tr><th>Category</th><th class="r">AP paid</th><th class="r">Share</th><th class="r">By voucher</th><th class="r">Not by voucher</th><th class="r">AP outstanding</th><th class="r">Open invoices</th></tr></thead><tbody>';
+    ap.rows.forEach(function (g) {
+      var empty = !g.present;
+      h += '<tr class="' + (g.requested ? 'asked' : '') + '"><td title="' + esc(g.long) + '"><span class="sw-i" style="background:' + AP_COLOR[apColorKey(g.id)] + '"></span>' + esc(g.label) +
+        (empty ? ' <span class="none">no sub-job for this in the export</span>' : '') + '</td>' +
+        '<td class="r num">' + (empty ? '–' : usdC(g.apPaid)) + '</td><td class="r num">' + (empty || !ap.total ? '–' : pct(g.share)) + '</td>' +
+        '<td class="r num">' + (empty ? '–' : usdC(g.apV)) + '</td><td class="r num">' + (empty ? '–' : usdC(g.apNV)) + '</td>' +
+        '<td class="r num">' + (empty ? '–' : usdC(g.apOut)) + '</td><td class="r num">' + (empty ? '–' : g.apOpen) + '</td></tr>';
+    });
+    h += '<tr class="total"><td>Total</td><td class="r num">' + usdC(ap.total) + '</td><td class="r num">' + (ap.total ? '100.0%' : '–') + '</td><td class="r num">' + usdC(j.apV) +
+      '</td><td class="r num">' + usdC(j.apNV) + '</td><td class="r num">' + usdC(ap.totalOut) + '</td><td class="r num">' + j.apOpen + '</td></tr></tbody></table></div>';
+    var main = ap.rows.filter(function (g) { return g.id === 'MAIN'; })[0];
+    if (main && ap.total > 0 && main.apPaid / ap.total >= 0.5) {
+      h += '<div class="callout callout-warn" style="margin-top:12px"><b>' + pct(main.apPaid / ap.total, 0) + ' of this job\'s AP is posted to the main job number.</b>The export only tells categories apart by sub-job, so that money cannot be placed in GCs, GRs, Trades or Insurance from this file.</div>';
+    }
+    h += '</div></div>';
+    h += '<details class="subs"><summary>Show all ' + plural(j.subs.length, 'sub-job') + ' behind these totals</summary><div class="tablewrap"><table class="mini"><thead><tr><th>Sub-job</th><th>Name</th><th>Category</th><th class="r">AP paid</th><th class="r">AP outstanding</th><th class="r">Net billed</th><th class="r">Collected</th><th class="r">Cost to date</th></tr></thead><tbody>';
+    j.subs.forEach(function (s) {
+      h += '<tr><td class="num">' + esc(s.code) + '</td><td>' + esc(s.name) + '</td><td>' + esc(E.CATEGORY_BY_ID[s.category].label) + '</td><td class="r num">' + usdC(s.apPaid) +
+        '</td><td class="r num">' + usdC(s.apOut) + '</td><td class="r num">' + usdC(s.netBill) + '</td><td class="r num">' + usdC(s.arPaid) + '</td><td class="r num">' + usdC(s.cost) + '</td></tr>';
+    });
+    h += '</tbody></table></div></details></div>';
+    return h;
+  }
+
+  function calcView(rep) {
+    var l = rep.lines.filter(function (x) { return x.id === state.selected; })[0];
+    if (!l) {
+      var top = rep.lines.filter(function (x) { return x.type === 'job'; }).sort(function (a, b) { return b.current - a.current; }).slice(0, 8);
+      var h0 = '<div class="panel"><h2>Pick a job to see how its number was calculated</h2><p class="muted">Click any line on the Schedule page, or start with one of the largest:</p><table class="mini"><tbody>';
+      top.forEach(function (x) { h0 += '<tr class="clickable" tabindex="0" role="button" data-action="open" data-id="' + esc(x.id) + '"><td>' + esc(displayName(x)) + ' <span class="muted num">' + esc(x.code) + '</span></td><td class="r num"><b>' + usd(x.current) + '</b></td></tr>'; });
+      return h0 + '</tbody></table></div>';
+    }
+    var h = picker(rep);
+    h += '<div class="jobhead"><div><h1>' + esc(displayName(l)) + '</h1><ul class="facts">' + (l.code ? '<li>Job <b class="num">' + esc(l.code) + '</b></li>' : '') +
+      (l.am ? '<li>Area manager <b>' + esc(l.am) + '</b></li>' : '') + (l.px ? '<li>Project executive <b>' + esc(l.px) + '</b></li>' : '') +
+      (l.excel && l.excel.name !== displayName(l) ? '<li>Name in Excel <b>' + esc(l.excel.name) + '</b></li>' : '') + '</ul></div></div>';
+    h += '<div class="calc-grid">';
+    if (l.type === 'small') {
+      h += '<div class="wide">' + scheduleBlock(rep, l) + '</div><div class="panel wide"><h2>What is in this line</h2><p class="plain">' +
+        (rep.fromExport ? 'Every job in the Excel export that is underbilled by less than $10,000, added together.' :
+          'The schedule rolls every job underbilled by less than $10,000 into this one line. It does not list the jobs behind it, so there is nothing further to open.') + '</p></div>';
+      return h + '</div>';
+    }
+    h += scheduleBlock(rep, l);
+    if (!state.exp) h += '<div class="panel"><h2>2. What the Excel export calculates</h2><p class="plain">No Excel export is loaded. Drop the UNDERBILLING_CASHPOSITION export on this window to fill in this page.</p></div>';
+    else if (!l.excel) h += '<div class="panel"><h2>2. What the Excel export calculates</h2><div class="callout callout-warn"><b>Job ' + esc(l.code) + ' is not in the Excel export.</b>There is no cost, billing, cash or AP detail to show for it.</div></div>';
+    else h += excelBlock(rep, l) + cashBlock(l) + '<div class="panel"><div class="step"><h2>4. AP paid</h2><span class="pill pill-src src">Excel</span></div>' +
+      eq('How AP was paid', term('By voucher', usdC(l.excel.apV), 'PAID_AMOUNT_VOUCHER') + op('+') + term('Not by voucher', usdC(l.excel.apNV), 'PAID_AMOUNT_NON_VOUCHER') + op('=') + term('AP paid', usdC(l.excel.apV + l.excel.apNV), 'AP_PAID_AMOUNT', 'result')) +
+      eq('Still to pay', term('AP outstanding', usdC(l.excel.apOut), 'AP_OUTSTANDING_AMOUNT') + op('across') + term('Open invoices', String(l.excel.apOpen), 'AP_OPEN_COUNT')) + '</div>' + apBlock(l);
+    return h + '</div>';
+  }
+
+  // ---------- view: data check ----------
+  function checkView(rep) {
+    var h = '<div class="cards"><div class="panel"><h2>Files in this report</h2>';
+    h += '<p><b>Schedule:</b> ' + (rep.fromExport ? 'none loaded, page 1 is calculated from the Excel export' : esc(state.scheduleName) + ', ' + plural(rep.lines.length, 'line') + ', as of ' + dLong(rep.asOf)) + '</p>';
+    h += '<p><b>Excel export:</b> ' + (state.exp ? esc(state.exportName) + ', ' + plural(state.exp.jobs.length, 'job') + ', data as of ' + dLong(rep.exportAsOf) : 'none loaded') + '</p>';
+    if (state.exp && state.exp.problems.length) h += '<p class="up">' + esc(state.exp.problems.slice(0, 3).join(' ')) + '</p>';
+    h += '</div><div class="panel"><h2>Does the schedule add up?</h2>';
+    rep.sections.forEach(function (s) {
+      h += '<p><span class="status ' + (s.sumsOk ? 'pass">✓ Yes' : 'fail">✕ No') + '</span> ' + esc(s.title) + ': lines add to ' + usd(s.computed[rep.cur]) + ', subtotal ' + usd(s.subtotal[rep.cur]) +
+        (s.printed && s.computed[rep.cur] !== s.subtotal[rep.cur] ? ' <span class="muted">(whole-dollar rounding)</span>' : '') + '</p>';
+    });
+    h += '<p><span class="status ' + (rep.totalOk ? 'pass">✓ Yes' : 'fail">✕ No') + '</span> Subtotals add to the ' + usd(rep.total[rep.cur]) + ' total</p></div></div>';
+    if (!rep.checks) return h + '<div class="panel"><p class="plain">Load the Excel export to run the checks on it.</p></div>';
+    h += '<section class="section"><div class="section-head"><h2>Rules re-run on every row</h2><span class="blurb">The report recalculates each formula itself and compares the answer with the file.</span></div><div class="tablewrap"><table class="sched"><thead><tr><th>Rule</th><th>Formula</th><th class="r">Rows checked</th><th class="r">Rows that fail</th><th>Result</th><th>Examples</th></tr></thead><tbody>';
+    rep.checks.forEach(function (c) {
+      h += '<tr><td><b>' + esc(c.title) + '</b></td><td><code class="f">' + esc(c.formula) + '</code></td><td class="r num">' + c.total + '</td><td class="r num">' + c.failed + '</td>' +
+        '<td><span class="status ' + (c.failed ? 'fail">✕ ' + (c.kind === 'math' ? 'Does not add up' : 'Needs attention') : 'pass">✓ Holds') + '</span></td><td class="num muted">' + esc(c.examples.join(', ')) + '</td></tr>';
+    });
+    h += '</tbody></table></div></section>';
+    if (!rep.fromExport) {
+      var rows = rep.lines.filter(function (l) { return l.type === 'job'; });
+      h += '<section class="section"><div class="section-head"><h2>Schedule against Excel, job by job</h2><span class="blurb">Click a job to open its calculation.</span></div><div class="tablewrap"><table class="sched"><thead><tr><th>Job</th><th class="r now">Schedule ' + dShort(rep.asOf) +
+        '</th><th class="r">Excel cost to date</th><th class="r">Excel billed to date</th><th class="r">Excel underbilled</th><th>Agrees?</th><th>What is wrong in the export</th></tr></thead><tbody>';
+      rows.forEach(function (l) {
+        var j = l.excel, flags = [];
+        if (j) { if (!j.checks.P1) flags.push('cost lower than AP paid'); if (!j.checks.P2) flags.push('billing above contract'); }
+        h += '<tr class="line" tabindex="0" role="button" data-action="open" data-id="' + esc(l.id) + '"><td class="job"><b>' + esc(displayName(l)) + '</b><small>' + esc(l.code) + '</small></td><td class="r num now">' + usd(l.current) + '</td>' +
+          (j ? '<td class="r num">' + usdC(j.cost) + '</td><td class="r num">' + usdC(j.billed) + '</td><td class="r num">' + (j.under > 0 ? usdC(j.under) : '<span class="muted">none</span>') + '</td>' +
+            '<td><span class="status ' + (l.excelAgrees ? 'pass">✓ Yes' : 'fail">✕ No') + '</span></td><td class="muted">' + esc(flags.join(', ')) + '</td>'
+            : '<td colspan="5" class="muted">Not in the Excel export</td>') + '</tr>';
+      });
+      h += '</tbody></table></div></section>';
+    }
+    return h;
+  }
+
+  // ---------- shell ----------
+  function emptyView() {
+    return '<div class="drop"><h1>Drop this month\'s files here</h1><p>The report builds itself from two files. Drag them onto this window together, or one at a time.</p>' +
+      '<ul class="need"><li class="' + (state.exp ? 'have' : '') + '">The Excel export, UNDERBILLING_CASHPOSITION_RPT.xlsx</li><li class="' + (state.sched ? 'have' : '') + '">The month-end schedule file, for example 10-31-2026 Underbilling Schedule.csv</li></ul>' +
+      '<div><button class="btn btn-primary" data-action="browse">Choose files</button></div><p style="margin-top:18px;font-size:.86rem">Nothing leaves this computer. The files are read here and never uploaded.</p></div>';
+  }
+
+  function render() {
+    var rep = state.report;
+    var h = '<header class="bar"><div class="bar-in"><div class="brand"><b>AJAX BUILDING COMPANY</b><span>' + (rep && rep.fromExport ? 'Underbillings' : 'Adjusted underbillings') + (rep ? ', ' + dLong(rep.asOf) : '') + '</span></div>';
+    if (rep) {
+      h += '<nav class="tabs" role="tablist">';
+      [['schedule', 'Schedule'], ['calc', 'How it was calculated'], ['check', 'Data check']].forEach(function (t) {
+        h += '<button class="tab" role="tab" aria-selected="' + (state.tab === t[0]) + '" data-action="tab" data-tab="' + t[0] + '">' + t[1] + '</button>';
+      });
+      h += '</nav>';
+    }
+    h += '<div class="bar-actions">' + (rep ? '<button class="btn" data-action="print">Print or save as PDF</button>' : '') + '<button class="btn" data-action="browse">Load files</button></div></div></header><main id="main">';
+    if (state.loading) h += '<div class="drop"><h1>Reading the files…</h1></div>';
+    else if (!rep) h += emptyView();
+    else if (state.tab === 'calc') h += calcView(rep);
+    else if (state.tab === 'check') h += checkView(rep);
+    else h += scheduleView(rep);
+    h += '</main><footer class="foot">Every figure is read from the input files or produced by a fixed formula. Nothing is estimated and nothing leaves this computer. BGI Underbilling Report ' + esc(BGI.version || 'dev') + '</footer>';
+    var focusId = document.activeElement && document.activeElement.id;
+    var caret = focusId === 'q' ? document.activeElement.selectionStart : null;
+    root.innerHTML = h;
+    if (focusId === 'q') { var q = document.getElementById('q'); if (q) { q.focus(); try { q.setSelectionRange(caret, caret); } catch (e) {} } }
+  }
+
+  function toast(msg, isErr) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast' + (isErr ? ' err' : ''); t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, isErr ? 9000 : 4000);
+  }
+
+  function rebuild() {
+    var sched = state.sched || (state.exp ? E.scheduleFromExport(state.exp) : null);
+    state.report = sched ? E.buildReport(sched, state.exp) : null;
+    if (state.report && state.selected && !state.report.lines.some(function (l) { return l.id === state.selected; })) state.selected = null;
+  }
+
+  // ---------- loading files ----------
+  async function takeExport(buffer, name) {
+    var wb = await BGI.xlsx.readWorkbook(buffer, 'UNDERBILLING_DATA');
+    state.exp = E.parseExport(wb.rows);
+    state.exportName = name;
+  }
+  function takeSchedule(textIn, name) { state.sched = E.parseSchedule(textIn); state.scheduleName = name; }
+
+  async function handleFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    var done = [], errors = [];
+    state.loading = !state.report; render();
+    for (var i = 0; i < list.length; i++) {
+      var f = list[i], lower = f.name.toLowerCase();
+      try {
+        if (/\.xlsx$/.test(lower)) { await takeExport(await f.arrayBuffer(), f.name); done.push(f.name); }
+        else if (/\.csv$/.test(lower)) { takeSchedule(await f.text(), f.name); done.push(f.name); }
+        else if (/\.pdf$/.test(lower)) errors.push(f.name + ' is a PDF. This report reads the Excel export (.xlsx) and the schedule file (.csv).');
+        else if (/\.xls$/.test(lower)) errors.push(f.name + ' is the old Excel format. Save it as .xlsx and drop it again.');
+        else errors.push(f.name + ' is not a file this report can read. Use the .xlsx export and the .csv schedule.');
+      } catch (e) { errors.push(f.name + ': ' + (e && e.message ? e.message : 'could not be read.')); }
+    }
+    state.loading = false;
+    rebuild(); render();
+    if (errors.length) toast(errors.join(' '), true);
+    else toast('Loaded ' + done.join(' and ') + '.');
+  }
+
+  function api(path) { return fetch('api/' + path, { headers: { 'X-BGI-Token': state.token }, cache: 'no-store' }); }
+
+  async function loadFromFolder() {
+    try {
+      var res = await api('files');
+      if (!res.ok) return;
+      var info = await res.json();
+      state.loading = true; render();
+      var errors = [];
+      if (info.export) {
+        try { var r = await api('file?name=' + encodeURIComponent(info.export.name)); if (!r.ok) throw new Error('could not be opened.'); await takeExport(await r.arrayBuffer(), info.export.name); }
+        catch (e) { errors.push(info.export.name + ': ' + e.message); }
+      }
+      if (info.schedule) {
+        try { var r2 = await api('file?name=' + encodeURIComponent(info.schedule.name)); if (!r2.ok) throw new Error('could not be opened.'); takeSchedule(await r2.text(), info.schedule.name); }
+        catch (e2) { errors.push(info.schedule.name + ': ' + e2.message); }
+      }
+      state.loading = false; rebuild(); render();
+      if (errors.length) toast(errors.join(' '), true);
+      else if (state.report) toast('Loaded the newest files from the report folder.');
+    } catch (e) { state.loading = false; render(); }
+  }
+
+  // ---------- events ----------
+  function onAction(el) {
+    var a = el.getAttribute('data-action');
+    if (a === 'tab') { state.tab = el.getAttribute('data-tab'); render(); window.scrollTo(0, 0); }
+    else if (a === 'open') { state.selected = el.getAttribute('data-id'); state.tab = 'calc'; render(); window.scrollTo(0, 0); }
+    else if (a === 'jump') { var t = document.getElementById(el.getAttribute('data-id')); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    else if (a === 'print') window.print();
+    else if (a === 'browse') document.getElementById('file').click();
+    else if (a === 'clear-filter') { state.q = ''; state.px = ''; render(); }
+  }
+
+  function start() {
+    root = document.getElementById('app');
+    var m = /[?&]t=([A-Za-z0-9_-]+)/.exec(location.search);
+    state.token = m ? m[1] : null;
+    state.server = /^https?:$/.test(location.protocol) && !!state.token;
+
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest ? e.target.closest('[data-action]') : null;
+      if (el) onAction(el);
+    });
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('tr[data-action]')) { e.preventDefault(); onAction(e.target); }
+    });
+    document.addEventListener('input', function (e) { if (e.target.id === 'q') { state.q = e.target.value; render(); } });
+    document.addEventListener('change', function (e) {
+      if (e.target.id === 'px') { state.px = e.target.value; render(); }
+      else if (e.target.id === 'jobpick') { state.selected = e.target.value; render(); }
+      else if (e.target.id === 'file') { handleFiles(e.target.files); e.target.value = ''; }
+    });
+    var depth = 0;
+    window.addEventListener('dragenter', function (e) { e.preventDefault(); depth++; document.body.classList.add('dragging'); });
+    window.addEventListener('dragleave', function () { depth = Math.max(0, depth - 1); if (!depth) document.body.classList.remove('dragging'); });
+    window.addEventListener('dragover', function (e) { e.preventDefault(); });
+    window.addEventListener('drop', function (e) { e.preventDefault(); depth = 0; document.body.classList.remove('dragging'); handleFiles(e.dataTransfer && e.dataTransfer.files); });
+
+    render();
+    if (state.server) {
+      loadFromFolder();
+      setInterval(function () { api('ping').catch(function () {}); }, 5000);
+      window.addEventListener('pagehide', function () { try { navigator.sendBeacon('api/bye?t=' + encodeURIComponent(state.token)); } catch (e) {} });
+    }
+  }
+
+  BGI.app = { start: start, _state: state, _handleFiles: handleFiles };
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  }
+})(typeof globalThis !== 'undefined' ? (globalThis.BGI = globalThis.BGI || {}) : (window.BGI = window.BGI || {}));
+
+</script>
+</body>
+</html>
