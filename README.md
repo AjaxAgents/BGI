@@ -2,12 +2,12 @@
 
 Budgeting General Interface for STO Ajax Building Company.
 
-## Underbilling Report (prototype, v0.1.0)
+## Underbilling Report (prototype, v0.2.0)
 
 A single Windows EXE that turns the month's underbilling inputs into a report people can read:
 
-- **Schedule** mirrors the month-end Adjusted Underbillings schedule: the total, where it sits, what moved since last month, and every job line.
-- **How it was calculated** opens when you click a line. It shows each formula with the numbers filled in and the Excel column each number came from, plus AP by category (GCs, GRs, Trades, Insurance).
+- **Schedule** mirrors the month-end Adjusted Underbillings schedule: the total, where it sits, what moved since last month, and every job line. Click any column heading to sort.
+- **How it was calculated** opens when you click a line: the basic math on one line, then AP by category with every sub-job, cash position, and AP paid by type. A box the export cannot fill yet reads "Data required".
 - **Data check** re-runs every rule on every row of the inputs and says which ones hold.
 
 Every figure is read from an input file or produced by a fixed formula listed in [docs/RULES.md](docs/RULES.md). Nothing is estimated.
@@ -68,6 +68,7 @@ web/src/styles.css
 cmd/bgi-underbilling  Go launcher that embeds and serves the page
 tests/                node --test, synthetic fixtures
 docs/RULES.md         every rule in plain language
+assets/               app icon (the .syso next to main.go embeds it in the EXE; regenerate with akavel/rsrc)
 ```
 
 ### Roadmap

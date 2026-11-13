@@ -32,7 +32,7 @@ These do not test arithmetic. They test whether a figure can be right.
 | S1 | A job is listed when its underbilled amount is above zero. |
 | S2 | Jobs underbilled less than $10,000 are rolled into one "small jobs" line. |
 | S3 | Section subtotal = sum of its lines. Total = sum of the subtotals. Lines are printed in whole dollars, so a printed subtotal may differ from the sum of its lines by up to $0.50 per line; anything more is reported. |
-| S4 | A job whose construction start date is after the report date is "not started"; otherwise it is "in process". |
+| S4 | A job whose construction start date is after the report date is "not started"; otherwise it is "in process". Jobs in process are listed first. |
 | S5 | Change since last month = current month − prior month. A line that was zero last month is marked new; a line that is zero this month is marked cleared. |
 | S6 | Share of total = line ÷ total. Rank is by current-month amount among job lines above zero. |
 
@@ -45,7 +45,13 @@ When a schedule file is loaded, S1 to S4 are checks on that file. When only the 
 | X0 | Every job on the schedule is matched to the export by job number. |
 | X1 | The export agrees with a schedule line when `max(0, COST_TO_DATE − BILLED_TO_DATE)` is within $1 of the schedule figure. |
 
+| X2 | Excel cost and billing are shown as the math for a line only when X1 holds and the job passes P1 and P2. Otherwise the box reads "Data required". |
+
 The report also flags an export whose data date is earlier than the schedule's report date.
+
+## Data required
+
+Boxes the export cannot fill yet are tagged "Data required". The list of what the export still has to supply is `DATA_REQUIRED` in `web/src/engine.js` and is shown on the Data check page.
 
 ## AP by category
 

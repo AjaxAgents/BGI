@@ -231,3 +231,32 @@ footer.foot { max-width: 1480px; margin: 0 auto; padding: 0 28px 28px; color: va
   table.sched tr { break-inside: avoid; }
   details.subs > *:not(summary) { display: block; }
 }
+
+/* ---------- v0.2 ---------- */
+.req { display: inline-flex; align-items: center; background: var(--warn-bg); color: var(--warn-ink); border: 1px dashed #d2a233; border-radius: 6px; padding: 1px 8px; font: 700 .78rem var(--body); white-space: nowrap; cursor: default; }
+.term .v .req { font-size: .86rem; padding: 4px 10px; }
+.linkish .req { cursor: pointer; margin-right: 4px; }
+.reqs { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+td.reqcell { text-align: center; vertical-align: middle; background: #fffbef; border-left: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft); }
+.section-head .sub { margin-left: auto; }
+.sortbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; border-radius: 4px; }
+.sortbtn:hover { color: var(--ink); }
+.sortbtn:focus-visible { outline: 3px solid var(--hivis); outline-offset: 2px; }
+.sortbtn .arr { font-size: .68rem; color: #b6bfce; }
+.sortbtn.on { color: var(--navy); }
+.sortbtn.on .arr { color: var(--navy); }
+table.sched th.r .sortbtn { flex-direction: row-reverse; }
+table.sched th.c, table.sched td.c { text-align: center; }
+.pct { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; }
+.pct .num { font-weight: 600; }
+.pct .track { width: 88px; }
+.mathline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; padding: 16px 18px; background: var(--tint); border: 1px solid #cfdcff; border-radius: 8px; margin-bottom: 14px; }
+.mathline .term .v { font-size: 1.75rem; }
+.mathline .op { font-size: 1.8rem; padding-bottom: 16px; }
+.kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 20px; margin: 4px 0 0; }
+.kv dt { font-size: .78rem; color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+h3.sub-h { font-family: var(--display); font-size: .98rem; font-weight: 600; margin: 20px 0 6px; }
+.eq-note:empty { display: none; }
+table.sched td.job { min-width: 230px; }
+@media print { .sortbtn .arr { display: none; } }

@@ -238,6 +238,19 @@ test('report: totals, change, ranking, section rule and the join to Excel', () =
   const x0 = rep.checks.find((c) => c.id === 'X0');
   assert.equal(x0.failed, 1);
   assert.equal(rep.exportStale, false);
+  assert.deepEqual(rep.sections.map((s) => s.id), ['IN_PROCESS', 'NOT_STARTED', 'SMALL'], 'jobs in process come first');
+  assert.equal(alpha.excelUsable, true, 'plausible and matching: Excel figures are shown');
+  assert.equal(rep.lines.find((l) => l.code === '9999').excelUsable, false, 'not in the export: data required');
+});
+test('data required: an export figure that cannot be right is not shown as the math', () => {
+  const rows = sampleRows();
+  const exp = engine.parseExport(rows);
+  const csv = CSV.replace('job,IN_PROCESS,9999,Not In Export,Ann Wu,Pat Lee,12000,-', 'job,IN_PROCESS,4000,Delta Lab,Ann Wu,Pat Lee,12000,-');
+  const rep = engine.buildReport(engine.parseSchedule(csv), exp);
+  const delta = rep.lines.find((l) => l.code === '4000');
+  assert.equal(delta.excelAgrees, true, 'both say zero underbilling');
+  assert.equal(delta.excelUsable, false, 'but cost is below AP paid and billing is above contract');
+  assert.ok(engine.DATA_REQUIRED.length >= 8);
 });
 test('report: a subtotal that does not add up is reported', () => {
   const rep = engine.buildReport(engine.parseSchedule(CSV.replace('subtotal,IN_PROCESS,,Subtotal,,,112000,150000', 'subtotal,IN_PROCESS,,Subtotal,,,112000,175000')), null);

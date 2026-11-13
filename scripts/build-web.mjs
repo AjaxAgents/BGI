@@ -15,7 +15,11 @@ const scripts = [
 ].join('\n');
 if (/<\/script/i.test(scripts)) throw new Error('script source contains a closing script tag');
 
-const template = src('index.template.html');
+// Window and taskbar icon: Edge app windows take it from the page, so it is inlined at full size.
+const b64 = (f) => readFileSync(join(rootDir, 'assets', f)).toString('base64');
+const icon = `<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,${b64('icon.svg')}">\n` +
+  `<link rel="icon" type="image/png" sizes="256x256" href="data:image/png;base64,${b64('icon-256.png')}">`;
+const template = src('index.template.html').replace('<!--ICON-->', icon);
 const fill = (html) => html.replace('/*__STYLES__*/', () => src('styles.css')).replace('/*__SCRIPTS__*/', () => scripts);
 
 // Served copy: the launcher swaps in a per-response nonce and sends the CSP as a header.

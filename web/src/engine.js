@@ -289,10 +289,11 @@
     return Math.round(neg ? -n : n);
   }
 
+  // Display order: in process first, then not started, then the rolled-up small-jobs line.
   var SECTIONS = [
-    { id: 'NOT_STARTED', title: 'Jobs not started yet', blurb: 'Construction start date is after the report date. Cost so far is usually precon or early mobilization.' },
-    { id: 'SMALL', title: 'Small jobs', blurb: 'Every job underbilled less than $10,000, rolled into one line.' },
-    { id: 'IN_PROCESS', title: 'Jobs in process', blurb: 'Construction has started.' }
+    { id: 'IN_PROCESS', title: 'Jobs in process' },
+    { id: 'NOT_STARTED', title: 'Jobs not started yet' },
+    { id: 'SMALL', title: 'Small jobs' }
   ];
 
   function parseSchedule(csvText) {
@@ -375,7 +376,7 @@
       // Printed lines are rounded to whole dollars, so a subtotal may differ by up to $0.50 per line.
       var tol = Math.max(1, Math.ceil(lines.length / 2));
       var ok = !printed || printed.every(function (p, i) { return Math.abs(p - computed[i]) <= tol; });
-      return { id: s.id, title: s.title, blurb: s.blurb, lines: lines, computed: computed, subtotal: printed || computed, printed: !!printed, sumsOk: ok, tolerance: tol };
+      return { id: s.id, title: s.title, lines: lines, computed: computed, subtotal: printed || computed, printed: !!printed, sumsOk: ok, tolerance: tol };
     }).filter(function (s) { return s.lines.length; });
 
     var totalFromSubs = sections.reduce(function (a, s) { return addArrays(a, s.subtotal); }, zeros(n));
@@ -400,6 +401,8 @@
         l.excelUnderDollars = Math.max(0, l.excel.under) / 100;
         l.excelAgrees = Math.abs(l.excelUnderDollars - l.current) <= RULES.SCHEDULE_MATCH_TOLERANCE_DOLLARS;
       } else { l.excelUnderDollars = null; l.excelAgrees = null; }
+      // Rule X2: Excel cost and billing are shown only when they are plausible and reproduce the line.
+      l.excelUsable = !!(l.excel && l.excelAgrees && l.excel.checks.P1 && l.excel.checks.P2);
     });
     var ranked = schedule.lines.filter(function (l) { return l.type === 'job' && l.current > 0; })
       .sort(function (a, b) { return b.current - a.current; });
@@ -437,8 +440,22 @@
     return out;
   }
 
+  // What the export still has to supply. Shown on the Data check page and as "Data required" tags.
+  var DATA_REQUIRED = [
+    { need: 'Cost to date, per job and sub-job', use: 'Underbilling = cost − billed', cmic: 'Job Cost: posted cost transactions', status: 'wrong in export' },
+    { need: 'Billed to date and billing for the month', use: 'Underbilling, net billing, billed %', cmic: 'Job Billing: posted invoices', status: 'wrong in export' },
+    { need: 'Month-end snapshots of cost and billed', use: 'Prior-month columns and change', cmic: 'Job Cost and Job Billing by period', status: 'not in export' },
+    { need: 'Revised contract value', use: 'Billed %', cmic: 'Job Billing contract plus approved change orders', status: 'partly' },
+    { need: 'Area manager and CMiC construction start', use: 'Schedule columns and section', cmic: 'Job master and job roles', status: 'not in export' },
+    { need: 'CFO adjustments and comments', use: 'Adjusted figure and comment', cmic: 'Not in CMiC: needs an input sheet', status: 'not in export' },
+    { need: 'Cost-code category on each AP line', use: 'AP by category: GCs, GRs, Trades, Insurance', cmic: 'Job Cost code and category on the AP distribution', status: 'sub-job name only' },
+    { need: 'AP type on each payment', use: 'AP paid by type: payroll, PO, contracts', cmic: 'AP voucher source: subcontract, purchase order, payroll', status: 'not in export' },
+    { need: 'Definition of voucher and non-voucher', use: 'AP paid', cmic: 'Query author', status: 'undefined' },
+    { need: 'Current AP with extract date and time', use: 'AP and cash position as of today', cmic: 'AP vouchers and payments', status: 'stale snapshot' }
+  ];
+
   BGI.engine = {
-    RULES: RULES, CATEGORIES: CATEGORIES, CATEGORY_BY_ID: CATEGORY_BY_ID, CHECK_TEXT: CHECK_TEXT, SECTIONS: SECTIONS,
+    RULES: RULES, DATA_REQUIRED: DATA_REQUIRED, CATEGORIES: CATEGORIES, CATEGORY_BY_ID: CATEGORY_BY_ID, CHECK_TEXT: CHECK_TEXT, SECTIONS: SECTIONS,
     cents: cents, isoDate: isoDate, categorize: categorize, parseExport: parseExport, apByCategory: apByCategory,
     parseCsv: parseCsv, parseSchedule: parseSchedule, scheduleFromExport: scheduleFromExport, buildReport: buildReport
   };
